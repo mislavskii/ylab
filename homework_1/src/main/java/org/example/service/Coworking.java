@@ -5,9 +5,7 @@ import org.example.model.Facility;
 import org.example.model.User;
 import org.example.model.Workstation;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 
 public class Coworking {
     private final HashMap<String, Facility> facilities;
@@ -75,6 +73,19 @@ public class Coworking {
         if (facilities.putIfAbsent(facility.getIdNumber(), facility) != null) {
             System.out.println("Facility already exists, could not be added");
         }
+    }
+
+    public Facility getFacility(String idNumber) {
+        return facilities.get(idNumber);
+    }
+
+    public List<? extends Facility> viewAllFacilities() {
+        var view = new ArrayList<>(facilities.values());
+        return Collections.unmodifiableList(view);
+    }
+
+    public Facility removeFacility(String idNumber) {
+        return facilities.remove(idNumber);
     }
 
 }

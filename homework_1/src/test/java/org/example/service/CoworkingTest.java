@@ -21,16 +21,13 @@ class CoworkingTest {
     }
 
     @Test
-    void authenticateUser() {
-//        coworking.authenticateUser();
-    }
-
-    @Test
     void addFacility() {
         Workstation workstation = new Workstation("ws001", "Celeron");
+        ConferenceRoom room = new ConferenceRoom("cr001", 7);
         coworking.addFacility(workstation);
+        coworking.addFacility(room);
         var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
-        assertThat(facilities).contains(workstation);
+        assertThat(facilities).contains(workstation).contains(room);
     }
 
     @Test
@@ -49,6 +46,27 @@ class CoworkingTest {
         ConferenceRoom room = new ConferenceRoom("001", 7);
         coworking.addFacility(workstation);
         coworking.addFacility(room);
+        var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
+        assertThat(facilities).contains(workstation).doesNotContain(room);
+    }
+
+    @Test
+    void getFacility() {
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        ConferenceRoom room = new ConferenceRoom("cr001", 7);
+        coworking.addFacility(workstation);
+        coworking.addFacility(room);
+        var retrieved = coworking.getFacility("ws001");
+        assertThat(retrieved).isSameAs(workstation);
+    }
+
+    @Test
+    void removeFacility() {
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        ConferenceRoom room = new ConferenceRoom("cr001", 7);
+        coworking.addFacility(workstation);
+        coworking.addFacility(room);
+        coworking.removeFacility("cr001");
         var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
         assertThat(facilities).contains(workstation).doesNotContain(room);
     }

@@ -34,12 +34,16 @@ public class Booking implements Comparable<Booking> {
         return user;
     }
 
+    public boolean isOverlapping(Booking other) {
+        return !getEnd().isBefore(other.getStart()) && !getStart().isAfter(other.getEnd());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Booking booking)) return false;
         if (!getFacility().equals(booking.getFacility())) return false;
-        return !getEnd().isBefore(booking.getStart()) && !getStart().isAfter(booking.getEnd());
+        return isOverlapping(booking);
     }
 
     @Override

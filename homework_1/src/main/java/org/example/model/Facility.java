@@ -1,9 +1,14 @@
 package org.example.model;
 
 public abstract class Facility {
-    private String idNumber;
+    private final String idNumber;
 
     public Facility(String idNumber) {
         this.idNumber = idNumber;
     }
+
+    public String getIdNumber() {
+        return idNumber;
+    }
+
 }

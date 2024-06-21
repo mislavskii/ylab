@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BookingTest {
     Workstation workstation1;
@@ -25,6 +26,30 @@ class BookingTest {
         room2 = new ConferenceRoom("cr002", 35);
         user1 = new User("u1", "pwd1");
         user2 = new User("u2", "pwd2");
+    }
+
+    @Test
+    void booking_end_before_start_throws_exception() {
+        assertThatThrownBy( () -> {
+            Booking b1 = new Booking(
+                    workstation1,
+                    LocalDateTime.of(2024, 6, 22, 10, 0),
+                    LocalDateTime.of(2024, 6, 22, 9, 59),
+                    user1
+            );
+        }).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void booking_end_same_start_throws_exception() {
+        assertThatThrownBy( () -> {
+            Booking b1 = new Booking(
+                    workstation1,
+                    LocalDateTime.of(2024, 6, 22, 10, 0),
+                    LocalDateTime.of(2024, 6, 22, 10, 0),
+                    user1
+            );
+        }).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -230,4 +255,5 @@ class BookingTest {
         );
         assertThat(b1).isEqualByComparingTo(b2);
     }
+
 }

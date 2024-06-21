@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.model.Booking;
 import org.example.model.Facility;
 import org.example.model.User;
 import org.example.model.Workstation;
@@ -9,12 +10,18 @@ import java.util.HashSet;
 import java.util.Scanner;
 
 public class Coworking {
-    private HashMap<String, Facility> facilities;
-    private HashMap<String, User> users = new HashMap<>();
-    private HashSet bookings;
-    private Scanner scanner = new Scanner(System.in);
+    private final HashMap<String, Facility> facilities;
+    private final HashMap<String, User> users;
+    private HashSet<Booking> bookings;
+    private final Scanner scanner = new Scanner(System.in);
 
-    public void registerNewUser(String login) {
+    public Coworking() {
+        this.facilities = new HashMap<>();
+        this.users = new HashMap<>();
+        this.bookings = new HashSet<>();
+    }
+
+    private void registerNewUser(String login) {
         System.out.println("Please enter a password:");
         String password = scanner.nextLine();
         users.put(login, new User(login, password));
@@ -64,8 +71,10 @@ public class Coworking {
         executeCommand(scanner.nextLine());
     }
 
-//    private boolean addFacility(Facility facility) {
-//
-//    }
+    public void addFacility(Facility facility) {
+        if (facilities.putIfAbsent(facility.getIdNumber(), facility) != null) {
+            System.out.println("Facility already exists, could not be added");
+        }
+    }
 
 }

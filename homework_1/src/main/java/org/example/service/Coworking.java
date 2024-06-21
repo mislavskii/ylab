@@ -1,12 +1,14 @@
-package org.example;
+package org.example.service;
+
+import org.example.model.Facility;
+import org.example.model.User;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
 public class Coworking {
-    private HashSet workstations;
-    private HashSet conferenceRooms;
+    private HashMap<String, Facility> facilities;
     private HashMap<String, User> users = new HashMap<>();
     private HashSet bookings;
     private Scanner scanner = new Scanner(System.in);
@@ -43,7 +45,7 @@ public class Coworking {
             String command = scanner.nextLine();
             executeCommand(command);
         } else {
-            System.out.println("There is no such user yet. Create new account Y/N?");
+            System.out.println("There is no such user yet. Create new account Y/any?");
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("y")) {
                 registerNewUser(login);

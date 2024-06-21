@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.service.Coworking;
+
 public class Main {
     public static void main(String[] args) {
 

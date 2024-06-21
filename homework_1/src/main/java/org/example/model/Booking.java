@@ -36,8 +36,8 @@ public class Booking implements Comparable<Booking> {
         if (this == o) return true;
         if (!(o instanceof Booking booking)) return false;
         if (!getFacility().equals(booking.getFacility())) return false;
-        if (getStart() == booking.getStart() && getEnd() == booking.getEnd()) return true;
-        return getEnd().isAfter(booking.getStart()) && getStart().isBefore(booking.getEnd());
+//        if (getStart() == booking.getStart() && getEnd() == booking.getEnd()) return true;
+        return !getEnd().isBefore(booking.getStart()) && !getStart().isAfter(booking.getEnd());
     }
 
     @Override

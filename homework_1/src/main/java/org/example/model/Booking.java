@@ -9,6 +9,9 @@ public class Booking implements Comparable<Booking> {
     private final User user;
 
     public Booking(Facility facility, LocalDateTime start, LocalDateTime end, User user) {
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("End time is before or equal to start time");
+        }
         this.facility = facility;
         this.start = start;
         this.end = end;
@@ -36,7 +39,6 @@ public class Booking implements Comparable<Booking> {
         if (this == o) return true;
         if (!(o instanceof Booking booking)) return false;
         if (!getFacility().equals(booking.getFacility())) return false;
-//        if (getStart() == booking.getStart() && getEnd() == booking.getEnd()) return true;
         return !getEnd().isBefore(booking.getStart()) && !getStart().isAfter(booking.getEnd());
     }
 

@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.model.Facility;
 import org.example.model.User;
+import org.example.model.Workstation;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,4 +63,9 @@ public class Coworking {
         System.out.println("Please enter next command, mere Enter to log out");
         executeCommand(scanner.nextLine());
     }
+
+//    private boolean addFacility(Facility facility) {
+//
+//    }
+
 }

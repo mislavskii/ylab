@@ -94,11 +94,13 @@ class CoworkingTest {
         var end2 = LocalDateTime.of(2024, 7, 2, 11, 0);
         var booking1 = new Booking(workstation, start1, end1, user);
         var booking2 = new Booking(workstation, start2, end2, user);
+        assertThat(booking1.isOverlapping(booking2)).isTrue();
         assertThat(booking1).isEqualTo(booking2);
         coworking.addBooking(user, workstation, start1, end1);
         assertThat(coworking.addBooking(user, workstation, start2, end2)).isFalse();
         var actualBookings = coworking.viewAllBookings();
         assertThat(actualBookings).hasSize(1);
+        assertThat(actualBookings.get(0).getStart()).isEqualTo(booking1.getStart());
     }
 
     @Test

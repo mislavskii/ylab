@@ -49,8 +49,8 @@ public class Booking implements Comparable<Booking> {
     @Override
     public int hashCode() {
         int result = getFacility().hashCode();
-        result = 31 * result + getStart().hashCode();
-        result = 31 * result + getEnd().hashCode();
+//        result = 31 * result + getStart().hashCode();
+//        result = 31 * result + getEnd().hashCode();
         return result;
     }
 

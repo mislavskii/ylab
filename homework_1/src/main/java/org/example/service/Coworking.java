@@ -23,6 +23,16 @@ public class Coworking {
         this.bookings = new HashSet<>();
     }
 
+    public void createAdminUser(String login, String password) throws MemberAlreadyExistsException {
+        if (users.putIfAbsent(login, new User(
+                login,
+                password,
+                true
+        )) != null) {
+            throw new MemberAlreadyExistsException();
+        }
+    }
+
     public void registerNewUser(String login, String password) throws MemberAlreadyExistsException {
         if (users.putIfAbsent(login, new User(login, password)) != null) {
             throw new MemberAlreadyExistsException();

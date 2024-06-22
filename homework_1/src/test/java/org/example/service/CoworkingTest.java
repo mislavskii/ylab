@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.thenNoException;
-import static org.junit.jupiter.api.Assertions.*;
 
 class CoworkingTest {
     Coworking coworking;
@@ -20,6 +19,14 @@ class CoworkingTest {
     @BeforeEach
     void setUp() {
         coworking = new Coworking();
+    }
+
+    @Test
+    void createAdminUser() throws MemberAlreadyExistsException, MemberNotFoundException, WrongPasswordException {
+        String login = "adm1";
+        String password = "apwd1";
+        coworking.createAdminUser(login, password);
+        assertThat(coworking.getUser(login, password).isAdmin()).isTrue();
     }
 
     @Test
@@ -118,7 +125,7 @@ class CoworkingTest {
         ConferenceRoom room = new ConferenceRoom("cr001", 7);
         coworking.addFacility(workstation);
         coworking.addFacility(room);
-        var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
+        var facilities = new ArrayList<>(coworking.viewAllFacilities());
         assertThat(facilities).contains(workstation).contains(room);
     }
 
@@ -128,7 +135,7 @@ class CoworkingTest {
         Workstation workstation2 = new Workstation("ws", "Core i5");
         coworking.addFacility(workstation1);
         assertThatThrownBy(() -> coworking.addFacility(workstation2)).isInstanceOf(MemberAlreadyExistsException.class);
-        var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
+        var facilities = new ArrayList<>(coworking.viewAllFacilities());
         assertThat(facilities).contains(workstation1).doesNotContain(workstation2);
     }
 
@@ -138,7 +145,7 @@ class CoworkingTest {
         ConferenceRoom room = new ConferenceRoom("001", 7);
         coworking.addFacility(workstation);
         assertThatThrownBy(() ->coworking.addFacility(room)).isInstanceOf(MemberAlreadyExistsException.class);
-        var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
+        var facilities = new ArrayList<>(coworking.viewAllFacilities());
         assertThat(facilities).contains(workstation).doesNotContain(room);
     }
 
@@ -159,7 +166,7 @@ class CoworkingTest {
         coworking.addFacility(workstation);
         coworking.addFacility(room);
         coworking.removeFacility("cr001");
-        var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
+        var facilities = new ArrayList<>(coworking.viewAllFacilities());
         assertThat(facilities).contains(workstation).doesNotContain(room);
     }
 

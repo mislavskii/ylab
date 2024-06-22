@@ -3,18 +3,19 @@ package org.example.service;
 import org.example.model.Booking;
 import org.example.model.Facility;
 import org.example.model.User;
+import org.example.utils.MemberAlreadyExistsException;
+import org.example.utils.MemberNotFoundException;
+import org.example.utils.WrongPasswordException;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-// TODO: move most of the user auth, reg, commands logic to Main
-// TODO: test booking handling
+// TODO: move most of the user auth, reg, command logic to Main
 
 public class Coworking {
     private final Map<String, Facility> facilities;
     private final Map<String, User> users;
     private final HashSet<Booking> bookings;
-    private final Scanner scanner = new Scanner(System.in);
 
     public Coworking() {
         this.facilities = new HashMap<>();
@@ -22,59 +23,42 @@ public class Coworking {
         this.bookings = new HashSet<>();
     }
 
-    private void registerNewUser(String login) {
-        System.out.println("Please enter a password:");
-        String password = scanner.nextLine();
-        users.put(login, new User(login, password));
-        System.out.println("New user registered. Please enter next command.");
-        String command = scanner.nextLine();
-        executeCommand(command);
-    }
-
-    public void authenticateUser() {
-        int maxTrials = 3;
-        System.out.println("Please enter username to log into the system or create new account, mere Enter to exit:");
-        String login = scanner.nextLine();
-        if (login.isEmpty()) {System.exit(0);}
-        if (users.containsKey(login)) {
-            System.out.println("Username recognized. Please enter your password or mere Enter to try another username:");
-            String password = scanner.nextLine();
-            while (!password.equals(users.get(login).getPassword()) && maxTrials > 0) {
-                if (password.isEmpty()) {
-                    authenticateUser();
-                }
-                maxTrials--;
-                System.out.println("Incorrect password. Please try again. Mere Enter to exit.");
-                password = scanner.nextLine();
-            }
-            if (maxTrials == 0) {
-                authenticateUser();
-            }
-            System.out.println("Access granted. Please enter command");
-            String command = scanner.nextLine();
-            executeCommand(command);
-        } else {
-            System.out.println("There is no such user yet. Create new account Y/any?");
-            String input = scanner.nextLine();
-            if (input.equalsIgnoreCase("y")) {
-                registerNewUser(login);
-            }
-            authenticateUser();
+    public void registerNewUser(String login, String password) throws MemberAlreadyExistsException {
+        if (users.putIfAbsent(login, new User(login, password)) != null) {
+            throw new MemberAlreadyExistsException();
         }
     }
 
-    private void executeCommand(String command) {
-        if (command.isEmpty()) {
-            authenticateUser();
+    public User authenticateUser(String login, String password) throws MemberNotFoundException, WrongPasswordException {
+        User user = users.get(login);
+        if (user == null) {
+            throw new MemberNotFoundException();
         }
-        System.out.println(command);
-        System.out.println("Please enter next command, mere Enter to log out");
-        executeCommand(scanner.nextLine());
+        if (!user.getPassword().equals(password)) {
+            throw new WrongPasswordException();
+        }
+        return user;
     }
 
-    public void addFacility(Facility facility) {
+    public User getUser(String login, String password) throws WrongPasswordException, MemberNotFoundException {
+        User user = users.get(login);
+        if (user == null) {
+            throw new MemberNotFoundException();
+        }
+        if (!user.getPassword().equals(password)) {
+            throw new WrongPasswordException();
+        }
+        return user;
+    }
+
+    public boolean removeUser(String login, String password) throws MemberNotFoundException, WrongPasswordException {
+        User user = getUser(login, password);
+        return users.remove(login, user);
+    }
+
+    public void addFacility(Facility facility) throws MemberAlreadyExistsException {
         if (facilities.putIfAbsent(facility.getIdNumber(), facility) != null) {
-            System.out.println("Facility already exists, could not be added");
+            throw new MemberAlreadyExistsException();
         }
     }
 

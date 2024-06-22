@@ -15,6 +15,10 @@ public class User {
         this.isAdmin = isAdmin;
     }
 
+    public String getLogin() {
+        return login;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -26,4 +30,5 @@ public class User {
     public boolean isAdmin() {
         return isAdmin;
     }
+
 }

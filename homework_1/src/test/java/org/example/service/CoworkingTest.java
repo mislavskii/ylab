@@ -1,14 +1,17 @@
 package org.example.service;
 
 import org.example.model.*;
+import org.example.utils.MemberAlreadyExistsException;
+import org.example.utils.MemberNotFoundException;
+import org.example.utils.WrongPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.BDDAssertions.thenNoException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CoworkingTest {
@@ -20,7 +23,97 @@ class CoworkingTest {
     }
 
     @Test
-    void addFacility() {
+    void registerNewUser() throws MemberAlreadyExistsException {
+        String login = "u1";
+        String password = "pwd1";
+        assertThatThrownBy(() -> coworking.getUser(login, password)).isInstanceOf(MemberNotFoundException.class);
+        coworking.registerNewUser(login, password);
+        thenNoException().isThrownBy(() -> coworking.getUser(login, password));
+    }
+
+    @Test
+    void register_existing_user_throws () throws MemberAlreadyExistsException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThatThrownBy(() -> coworking.registerNewUser(login, "other"))
+                .isInstanceOf(MemberAlreadyExistsException.class);
+    }
+
+    @Test
+    void authenticateUser() throws MemberAlreadyExistsException, MemberNotFoundException, WrongPasswordException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThat(coworking.authenticateUser(login, password).getLogin()).isEqualTo(login);
+    }
+
+    @Test
+    void auth_with_wrong_password_throws() throws MemberAlreadyExistsException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThatThrownBy(() -> coworking.authenticateUser(login, "wrong"))
+                .isInstanceOf(WrongPasswordException.class);
+    }
+
+    @Test
+    void auth_non_existent_throws() throws MemberAlreadyExistsException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThatThrownBy(() -> coworking.authenticateUser("non-existent", password))
+                .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    void getUser() throws MemberAlreadyExistsException, MemberNotFoundException, WrongPasswordException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThat(coworking.getUser(login, password).getLogin()).isEqualTo(login);
+    }
+
+    @Test
+    void get_user_wrong_password_throws () throws MemberAlreadyExistsException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThatThrownBy(() -> coworking.getUser(login, "wrong"))
+                .isInstanceOf(WrongPasswordException.class);
+    }
+
+    @Test
+    void get_non_existent_user_throws () throws MemberAlreadyExistsException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThatThrownBy(() -> coworking.getUser("non-existent", password))
+                .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    void removeUser() throws MemberAlreadyExistsException, MemberNotFoundException, WrongPasswordException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThat(coworking.removeUser(login, password)).isTrue();
+        assertThatExceptionOfType(MemberNotFoundException.class)
+                .isThrownBy(() -> coworking.getUser(login, password));
+    }
+
+    @Test
+    void remove_user_wrong_password_throws() throws MemberAlreadyExistsException {
+        String login = "u1";
+        String password = "pwd1";
+        coworking.registerNewUser(login, password);
+        assertThatExceptionOfType(WrongPasswordException.class)
+                .isThrownBy(() -> coworking.removeUser(login, "wrong"));
+        thenNoException().isThrownBy(() -> coworking.getUser(login, password));
+    }
+
+    @Test
+    void addFacility() throws MemberAlreadyExistsException {
         Workstation workstation = new Workstation("ws001", "Celeron");
         ConferenceRoom room = new ConferenceRoom("cr001", 7);
         coworking.addFacility(workstation);
@@ -30,27 +123,27 @@ class CoworkingTest {
     }
 
     @Test
-    void same_id_same_class_not_added() {
+    void same_id_same_class_not_added() throws MemberAlreadyExistsException {
         Workstation workstation1 = new Workstation("ws", "Celeron");
         Workstation workstation2 = new Workstation("ws", "Core i5");
         coworking.addFacility(workstation1);
-        coworking.addFacility(workstation2);
+        assertThatThrownBy(() -> coworking.addFacility(workstation2)).isInstanceOf(MemberAlreadyExistsException.class);
         var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
         assertThat(facilities).contains(workstation1).doesNotContain(workstation2);
     }
 
     @Test
-    void same_id_diff_class_not_added() {
+    void same_id_diff_class_not_added() throws MemberAlreadyExistsException {
         Workstation workstation = new Workstation("001", "Celeron");
         ConferenceRoom room = new ConferenceRoom("001", 7);
         coworking.addFacility(workstation);
-        coworking.addFacility(room);
+        assertThatThrownBy(() ->coworking.addFacility(room)).isInstanceOf(MemberAlreadyExistsException.class);
         var facilities = new ArrayList<Facility>(coworking.viewAllFacilities());
         assertThat(facilities).contains(workstation).doesNotContain(room);
     }
 
     @Test
-    void getFacility() {
+    void getFacility() throws MemberAlreadyExistsException {
         Workstation workstation = new Workstation("ws001", "Celeron");
         ConferenceRoom room = new ConferenceRoom("cr001", 7);
         coworking.addFacility(workstation);
@@ -60,7 +153,7 @@ class CoworkingTest {
     }
 
     @Test
-    void removeFacility() {
+    void removeFacility() throws MemberAlreadyExistsException {
         Workstation workstation = new Workstation("ws001", "Celeron");
         ConferenceRoom room = new ConferenceRoom("cr001", 7);
         coworking.addFacility(workstation);

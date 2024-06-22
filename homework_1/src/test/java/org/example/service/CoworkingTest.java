@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CoworkingTest {
@@ -105,5 +106,50 @@ class CoworkingTest {
 
     @Test
     void removeBooking() {
+        User user = new User("u1", "pwd1");
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        ConferenceRoom room = new ConferenceRoom("cr001", 35);
+        var start = LocalDateTime.of(2024, 7, 1, 11, 0);
+        var end = LocalDateTime.of(2024, 7, 1, 17, 0);
+        var workstationBooking = new Booking(workstation, start, end, user);
+        var roomBooking = new Booking(room, start, end, user);
+        coworking.addBooking(user, workstation, start, end);
+        coworking.addBooking(user, room, start, end);
+        assertThat(coworking.removeBooking(workstation, start, end, user)).isTrue();
+        var actualBookings = coworking.viewAllBookings();
+        assertThat(actualBookings).hasSize(1).contains(roomBooking).doesNotContain(workstationBooking);
     }
+
+    @Test
+    void wrong_user_cant_remove_booking() {
+        User user1 = new User("u1", "pwd1");
+        User user2 = new User("u2", "pwd2");
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        var start = LocalDateTime.of(2024, 7, 1, 11, 0);
+        var end = LocalDateTime.of(2024, 7, 1, 17, 0);
+        var workstationBooking = new Booking(workstation, start, end, user1);
+        coworking.addBooking(user1, workstation, start, end);
+        assertThatThrownBy(() -> coworking.removeBooking(workstation, start, end, user2))
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThat(coworking.viewAllBookings()).hasSize(1)
+                .contains(workstationBooking);
+    }
+
+    @Test
+    void admin_can_remove_others_booking() {
+        User user = new User("u1", "pwd1");
+        User admin = new User("adm1", "apwd1", true);
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        ConferenceRoom room = new ConferenceRoom("cr001", 35);
+        var start = LocalDateTime.of(2024, 7, 1, 11, 0);
+        var end = LocalDateTime.of(2024, 7, 1, 17, 0);
+        var workstationBooking = new Booking(workstation, start, end, user);
+        var roomBooking = new Booking(room, start, end, user);
+        coworking.addBooking(user, workstation, start, end);
+        coworking.addBooking(user, room, start, end);
+        assertThat(coworking.removeBooking(workstation, start, end, admin)).isTrue();
+        assertThat(coworking.viewAllBookings()).hasSize(1)
+                .contains(roomBooking).doesNotContain(workstationBooking);
+    }
+
 }

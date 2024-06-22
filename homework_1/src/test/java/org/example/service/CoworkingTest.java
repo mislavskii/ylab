@@ -1,12 +1,10 @@
 package org.example.service;
 
-import org.example.model.ConferenceRoom;
-import org.example.model.Facility;
-import org.example.model.User;
-import org.example.model.Workstation;
+import org.example.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,4 +69,39 @@ class CoworkingTest {
         assertThat(facilities).contains(workstation).doesNotContain(room);
     }
 
+    @Test
+    void addBooking() {
+        User user = new User("u1", "pwd1");
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        ConferenceRoom room = new ConferenceRoom("cr001", 35);
+        var start = LocalDateTime.of(2024, 7, 1, 11, 0);
+        var end = LocalDateTime.of(2024, 7, 1, 17, 0);
+        var expectedBooking1 = new Booking(workstation, start, end, user);
+        var expectedBooking2 = new Booking(room, start, end, user);
+        coworking.addBooking(user, workstation, start, end);
+        coworking.addBooking(user, room, start, end);
+        assertThat(coworking.viewAllBookings()).hasSize(2)
+                .contains(expectedBooking1, expectedBooking2);
+    }
+
+    @Test
+    void overlapping_booking_not_added() {
+        User user = new User("u1", "pwd1");
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        var start1 = LocalDateTime.of(2024, 7, 1, 11, 0);
+        var end1 = LocalDateTime.of(2024, 7, 1, 17, 0);
+        var start2 = LocalDateTime.of(2024, 7, 1, 12, 0);
+        var end2 = LocalDateTime.of(2024, 7, 2, 11, 0);
+        var booking1 = new Booking(workstation, start1, end1, user);
+        var booking2 = new Booking(workstation, start2, end2, user);
+        assertThat(booking1).isEqualTo(booking2);
+        coworking.addBooking(user, workstation, start1, end1);
+        assertThat(coworking.addBooking(user, workstation, start2, end2)).isFalse();
+        var actualBookings = coworking.viewAllBookings();
+        assertThat(actualBookings).hasSize(1);
+    }
+
+    @Test
+    void removeBooking() {
+    }
 }

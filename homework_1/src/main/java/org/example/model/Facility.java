@@ -11,4 +11,8 @@ public abstract class Facility {
         return idNumber;
     }
 
+    @Override
+    public String toString() {
+        return "Facility{'" + idNumber + '\'' + '}';
+    }
 }

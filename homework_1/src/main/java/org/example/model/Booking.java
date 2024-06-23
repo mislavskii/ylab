@@ -8,7 +8,7 @@ public class Booking implements Comparable<Booking> {
     private final LocalDateTime end;
     private final User user;
 
-    public Booking(Facility facility, LocalDateTime start, LocalDateTime end, User user) {
+    public Booking(User user, Facility facility, LocalDateTime start, LocalDateTime end) {
         if (!end.isAfter(start)) {
             throw new IllegalArgumentException("End time is before or equal to start time");
         }
@@ -62,4 +62,12 @@ public class Booking implements Comparable<Booking> {
         return 0;
     }
 
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "facility=" + facility +
+                ", start=" + start +
+                ", end=" + end +
+                '}';
+    }
 }

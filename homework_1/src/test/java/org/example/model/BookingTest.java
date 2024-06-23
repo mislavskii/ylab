@@ -32,10 +32,9 @@ class BookingTest {
     void booking_end_before_start_throws_exception() {
         assertThatThrownBy( () -> {
             Booking b1 = new Booking(
-                    workstation1,
+                    user1, workstation1,
                     LocalDateTime.of(2024, 6, 22, 10, 0),
-                    LocalDateTime.of(2024, 6, 22, 9, 59),
-                    user1
+                    LocalDateTime.of(2024, 6, 22, 9, 59)
             );
         }).isInstanceOf(IllegalArgumentException.class);
     }
@@ -44,10 +43,9 @@ class BookingTest {
     void booking_end_same_start_throws_exception() {
         assertThatThrownBy( () -> {
             Booking b1 = new Booking(
-                    workstation1,
+                    user1, workstation1,
                     LocalDateTime.of(2024, 6, 22, 10, 0),
-                    LocalDateTime.of(2024, 6, 22, 10, 0),
-                    user1
+                    LocalDateTime.of(2024, 6, 22, 10, 0)
             );
         }).isInstanceOf(IllegalArgumentException.class);
     }
@@ -55,16 +53,14 @@ class BookingTest {
     @Test
     void same_time_same_facility_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 12, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 12, 0)
         );
         Booking b2 = new Booking(
-                workstation1,
+                user2, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 12, 0),
-                user2
+                LocalDateTime.of(2024, 6, 22, 12, 0)
         );
         assertThat(b1).isEqualTo(b2);
     }
@@ -72,16 +68,14 @@ class BookingTest {
     @Test
     void diff_time_same_facility_not_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 12, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 12, 0)
         );
         Booking b2 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 12, 1),
-                LocalDateTime.of(2024, 6, 22, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 16, 0)
         );
         assertThat(b1).isNotEqualTo(b2);
     }
@@ -89,16 +83,14 @@ class BookingTest {
     @Test
     void same_time_diff_facility_same_class_not_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 12, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 12, 0)
         );
         Booking b2 = new Booking(
-                workstation2,
+                user1, workstation2,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 12, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 12, 0)
         );
         assertThat(b1).isNotEqualTo(b2);
     }
@@ -106,16 +98,14 @@ class BookingTest {
     @Test
     void same_time_diff_facility_diff_class_not_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 12, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 12, 0)
         );
         Booking b2 = new Booking(
-                room1,
+                user1, room1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 12, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 12, 0)
         );
         assertThat(b1).isNotEqualTo(b2);
     }
@@ -123,16 +113,14 @@ class BookingTest {
     @Test
     void one_within_other_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         Booking b2 = new Booking(
-                workstation1,
+                user2, workstation1,
                 LocalDateTime.of(2024, 6, 22, 16, 0),
-                LocalDateTime.of(2024, 6, 23, 10, 0),
-                user2
+                LocalDateTime.of(2024, 6, 23, 10, 0)
         );
         assertThat(b1).isEqualTo(b2);
     }
@@ -140,16 +128,14 @@ class BookingTest {
     @Test
     void one_starts_same_time_other_ends_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 22, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 22, 16, 0)
         );
         Booking b2 = new Booking(
-                workstation1,
+                user2, workstation1,
                 LocalDateTime.of(2024, 6, 22, 16, 0),
-                LocalDateTime.of(2024, 6, 23, 10, 0),
-                user2
+                LocalDateTime.of(2024, 6, 23, 10, 0)
         );
         assertThat(b1).isEqualTo(b2);
     }
@@ -157,16 +143,14 @@ class BookingTest {
     @Test
     void one_starts_before_other_ends_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 10, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 10, 0)
         );
         Booking b2 = new Booking(
-                workstation1,
+                user2, workstation1,
                 LocalDateTime.of(2024, 6, 22, 16, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user2
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         assertThat(b1).isEqualTo(b2);
     }
@@ -174,16 +158,14 @@ class BookingTest {
     @Test
     void diff_start_same_end_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         Booking b2 = new Booking(
-                workstation1,
+                user2, workstation1,
                 LocalDateTime.of(2024, 6, 22, 16, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user2
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         assertThat(b1).isEqualTo(b2);
     }
@@ -191,16 +173,14 @@ class BookingTest {
     @Test
     void same_start_diff_end_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user2, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user2
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         Booking b2 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 16, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         assertThat(b1).isEqualTo(b2);
     }
@@ -208,16 +188,14 @@ class BookingTest {
     @Test
     void earlier_start_smaller() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         Booking b2 = new Booking(
-                workstation2,
+                user1, workstation2,
                 LocalDateTime.of(2024, 6, 22, 10, 1),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         assertThat(b1).isLessThan(b2);
     }
@@ -225,16 +203,14 @@ class BookingTest {
     @Test
     void later_start_greater() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 1),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         Booking b2 = new Booking(
-                workstation2,
+                user1, workstation2,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         assertThat(b1).isGreaterThan(b2);
     }
@@ -242,16 +218,14 @@ class BookingTest {
     @Test
     void same_start_compare_as_equal() {
         Booking b1 = new Booking(
-                workstation1,
+                user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 16, 0)
         );
         Booking b2 = new Booking(
-                workstation2,
+                user1, workstation2,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
-                LocalDateTime.of(2024, 6, 23, 12, 0),
-                user1
+                LocalDateTime.of(2024, 6, 23, 12, 0)
         );
         assertThat(b1).isEqualByComparingTo(b2);
     }

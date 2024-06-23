@@ -1,7 +1,5 @@
 package org.example.model;
 
-import java.util.Collection;
-
 public class Workstation extends Facility {
     private String description;
 
@@ -9,4 +7,14 @@ public class Workstation extends Facility {
         super(idNumber);
         this.description = description;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
 }

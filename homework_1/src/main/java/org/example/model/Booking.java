@@ -64,8 +64,8 @@ public class Booking implements Comparable<Booking> {
 
     @Override
     public String toString() {
-        return "Booking{" +
-                "facility=" + facility +
+        return "Booking {" + user +
+                ", facility=" + facility.getIdNumber() +
                 ", start=" + start +
                 ", end=" + end +
                 '}';

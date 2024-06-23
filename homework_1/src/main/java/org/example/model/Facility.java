@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public abstract class Facility {
+public abstract class Facility implements Comparable<Facility> {
     private final String idNumber;
 
     public Facility(String idNumber) {
@@ -62,6 +62,11 @@ public abstract class Facility {
                 LocalDateTime.of(date, LocalTime.MIN),
                 LocalDateTime.of(date, LocalTime.MAX)
         );
+    }
+
+    @Override
+    public int compareTo(Facility other) {
+        return idNumber.compareTo(other.getIdNumber());
     }
 
     @Override

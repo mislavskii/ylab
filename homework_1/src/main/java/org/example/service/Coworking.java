@@ -109,8 +109,11 @@ public class Coworking {
     }
 
     public Map<Facility, TreeSet<Booking>> getAvailableBookingSlots(LocalDate date) {
-    // TODO
-    return null;
+        Map<Facility, TreeSet<Booking>> freeSlots = new TreeMap<>();
+        facilities.values().forEach(
+                facility -> freeSlots.put(facility, facility.getFreeBookingSlotsForDate(date, bookings))
+        );
+        return freeSlots;
     }
 
 }

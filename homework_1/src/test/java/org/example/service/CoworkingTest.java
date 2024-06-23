@@ -1,17 +1,18 @@
 package org.example.service;
 
-import org.example.model.Booking;
-import org.example.model.ConferenceRoom;
-import org.example.model.User;
-import org.example.model.Workstation;
+import org.example.TestUtils;
+import org.example.model.*;
 import org.example.utils.MemberAlreadyExistsException;
 import org.example.utils.MemberNotFoundException;
 import org.example.utils.WrongPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.thenNoException;
@@ -271,4 +272,29 @@ class CoworkingTest {
                 .contains(roomBooking).doesNotContain(workstationBooking);
     }
 
+    @Test
+    void getAvailableBookingSlots() throws MemberAlreadyExistsException {
+        LocalDate date = LocalDate.of(2024, 7, 7);
+        Set<Facility> facilities = new HashSet<>(Set.of(
+                new Workstation("ws001", "Celeron"),
+                new Workstation("ws002", "Core i5"),
+                new ConferenceRoom("cr001", 17)
+        ));
+        assertThat(facilities).hasSize(3);
+        facilities.forEach(facility -> {
+            try {
+                coworking.addFacility(facility);
+            } catch (MemberAlreadyExistsException e) {
+                throw new RuntimeException(e);
+            }
+            TestUtils.addFiveBookings(facility, coworking, date);
+        });
+        var anotherFacility = new ConferenceRoom("cr002", 11);
+        coworking.addFacility(anotherFacility);
+        TestUtils.addTwoOutsideBookings(anotherFacility, coworking, date);
+        assertThat(coworking.viewAllBookings()).hasSize(17);
+        var freeSlots = coworking.getAvailableBookingSlots(date);
+        assertThat(freeSlots).hasSize(4);
+        freeSlots.values().forEach(System.out::println);
+    }
 }

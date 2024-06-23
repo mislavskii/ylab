@@ -12,10 +12,10 @@ public class Booking implements Comparable<Booking> {
         if (!end.isAfter(start)) {
             throw new IllegalArgumentException("End time is before or equal to start time");
         }
+        this.user = user;
         this.facility = facility;
         this.start = start;
         this.end = end;
-        this.user = user;
     }
 
     public Facility getFacility() {

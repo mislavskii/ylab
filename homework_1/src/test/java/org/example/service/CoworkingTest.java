@@ -1,16 +1,17 @@
 package org.example.service;
 
-import org.example.model.*;
+import org.example.model.Booking;
+import org.example.model.ConferenceRoom;
+import org.example.model.User;
+import org.example.model.Workstation;
 import org.example.utils.MemberAlreadyExistsException;
 import org.example.utils.MemberNotFoundException;
 import org.example.utils.WrongPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.thenNoException;
@@ -268,54 +269,6 @@ class CoworkingTest {
         assertThat(coworking.removeBooking(workstation, start, end, admin)).isTrue();
         assertThat(coworking.viewAllBookings()).hasSize(1)
                 .contains(roomBooking).doesNotContain(workstationBooking);
-    }
-
-    @Test  // TODO: Remove or rework
-    void getDummyBooking() {
-        LocalDate date = LocalDate.of(2024, 7, 7);
-        Facility facility = new Workstation("ws001", "Celeron");
-        Booking dummy = coworking.getDummyBooking(facility, date);
-        System.out.println(dummy.getStart());
-        System.out.println(dummy.getEnd());
-    }
-
-    @Test
-    void getFacilityBookingsForDate() {
-        LocalDate date = LocalDate.of(2024, 7, 7);
-        Facility facility = new Workstation("ws001", "Celeron");
-        var start1 = LocalDateTime.of(2024, 7, 6, 11, 0);
-        var end1 = LocalDateTime.of(2024, 7, 6, 17, 0);
-        coworking.addBooking(null, facility, start1, end1);
-        var start2 = LocalDateTime.of(2024, 7, 6, 19, 0);
-        var end2 = LocalDateTime.of(2024, 7, 7, 6, 0);
-        coworking.addBooking(null, facility, start2, end2);
-        var start3 = LocalDateTime.of(2024, 7, 7, 11, 0);
-        var end3 = LocalDateTime.of(2024, 7, 7, 17, 0);
-        coworking.addBooking(null, facility, start3, end3);
-        var start4 = LocalDateTime.of(2024, 7, 7, 21, 0);
-        var end4 = LocalDateTime.of(2024, 7, 8, 11, 0);
-        coworking.addBooking(null, facility, start4, end4);
-        var start5 = LocalDateTime.of(2024, 7, 8, 17, 0);
-        var end5 = LocalDateTime.of(2024, 7, 8, 22, 0);
-        coworking.addBooking(null, facility, start5, end5);
-        assertThat(coworking.viewAllBookings()).hasSize(5);
-        var relevantBookings = coworking.getFacilityBookingsForDate(facility, date);
-        assertThat(relevantBookings).hasSize(3);
-        assertThat(Objects.requireNonNull(relevantBookings.first()).getEnd()).isEqualTo(end2);
-        assertThat(Objects.requireNonNull(relevantBookings.last()).getStart()).isEqualTo(start4);
-        System.out.println(relevantBookings);
-    }
-
-    @Test
-    void booking_overstretching_both_ends_listed() {
-        LocalDate date = LocalDate.of(2024, 7, 7);
-        Facility facility = new Workstation("ws001", "Celeron");
-        var start1 = LocalDateTime.of(2024, 7, 6, 11, 0);
-        var end1 = LocalDateTime.of(2024, 7, 8, 17, 0);
-        coworking.addBooking(null, facility, start1, end1);
-        var relevantBookings = coworking.getFacilityBookingsForDate(facility, date);
-        assertThat(relevantBookings).hasSize(1);
-        System.out.println(relevantBookings);
     }
 
 }

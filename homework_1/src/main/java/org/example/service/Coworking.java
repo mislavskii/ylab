@@ -9,11 +9,7 @@ import org.example.utils.WrongPasswordException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
-
-// TODO: move most of the user auth, reg, command logic to Main
 
 public class Coworking {
     private final Map<String, Facility> facilities;
@@ -113,23 +109,8 @@ public class Coworking {
     }
 
     public Map<Facility, TreeSet<Booking>> getAvailableBookingSlots(LocalDate date) {
-
+    // TODO
     return null;
-    }
-
-    public TreeSet<Booking> getFacilityBookingsForDate(Facility facility, LocalDate date) {
-        Booking dummy = getDummyBooking(facility, date);
-        return bookings.stream()
-                .filter(boo -> boo.equals(dummy))
-                .collect(Collectors.toCollection(TreeSet::new));
-    }
-
-    public Booking getDummyBooking(Facility facility, LocalDate date) {
-        return new Booking(
-                null, facility,
-                LocalDateTime.of(date, LocalTime.MIN),
-                LocalDateTime.of(date, LocalTime.MAX)
-        );
     }
 
 }

@@ -28,7 +28,7 @@ public class Main {
         User testUser = new User("tu1", "tpwd1");
         Initializer.populateFacilities(coworking);
 
-        User user = loginOrRegister();
+//        User user = loginOrRegister();
         executeCommands(testUser);
 
     }
@@ -82,20 +82,18 @@ public class Main {
         if (command.isEmpty()) {
             loginOrRegister();
         }
+        String response;
         switch(command) {
             case "1":
-                String response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
+                response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
                 System.out.println(response);
                 break;
             case "2":
                 System.out.println("Please enter date (YY.MM.DD):");
                 String textDate = scanner.nextLine();
                 LocalDate parsedDate = LocalDate.parse(textDate, formatter);
-                coworking.getAvailableBookingSlots(parsedDate).forEach((k, v) -> {
-                    System.out.println(k);
-                    System.out.println(v);
-                    System.out.println();
-                });
+                response = ResponseBuilder.listFreeSlots(coworking.getAvailableBookingSlots(parsedDate));
+                System.out.println(response);
                 break;
             default:
                 executeCommands(user);

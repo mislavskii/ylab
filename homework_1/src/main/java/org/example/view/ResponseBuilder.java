@@ -1,14 +1,18 @@
 package org.example.view;
 
+import org.example.model.Booking;
 import org.example.model.ConferenceRoom;
 import org.example.model.Facility;
 import org.example.model.Workstation;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class ResponseBuilder {
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
     public static String listFacilities(List<Facility> facilities) {
         StringBuilder response = new StringBuilder("\nCoworking has the following facilities:\n");
@@ -17,8 +21,19 @@ public class ResponseBuilder {
         return response.toString();
     }
 
-    public static String listFreeSlots() {
-        return null;
+    public static String listFreeSlots(Map<Facility, TreeSet<Booking>> slots) {
+        StringBuilder response = new StringBuilder("\nAvailable booking slots:\n");
+        slots.forEach((facility, freeSlots) -> {
+            response.append(facility.getIdNumber().toUpperCase()).append(": ");
+//            response.append(formatter.format(freeSlots.first().getStart())).append(" - ")
+//                    .append(formatter.format(freeSlots.pollFirst().getEnd()));
+            freeSlots.forEach(slot -> {
+                response.append(formatter.format(slot.getStart())).append(" - ")
+                        .append(formatter.format(slot.getEnd())).append(", ");
+                response.append("\b\b.\n");
+            });
+        });
+        return response.toString();
     }
 
     private static void getConferenceRooms(List<Facility> facilities, StringBuilder response) {

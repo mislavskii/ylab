@@ -2,68 +2,74 @@ package org.example;
 
 import org.example.model.User;
 import org.example.service.Coworking;
+import org.example.utils.MemberAlreadyExistsException;
+import org.example.utils.MemberNotFoundException;
+import org.example.utils.WrongPasswordException;
 
 import java.util.Scanner;
 
 public class Main {
+    private static final Coworking coworking = new Coworking();
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        System.out.println("Hello! Welcome to Coworking!");
 
-        System.out.println("Hello Coworking world!");
-        Coworking coworking = new Coworking();
-
-//        coworking.registerNewUser(login, password) {
-//            System.out.println("Please enter a password:");
-//            String password = scanner.nextLine();
-//            users.put(login, new User(login, password));
-//            System.out.println("New user registered. Please enter next command.");
-//            String command = scanner.nextLine();
-//            executeCommand(command);
-//        }
+        loginOrRegister();
 
     }
 
+    static void loginOrRegister() {
+        User user = null;
+        System.out.println("Please enter username to log into the system or create new account, mere Enter to exit:");
+        String login = scanner.nextLine();
+        if (login.isEmpty()) {System.exit(0);}
+        System.out.println("Please enter password to proceed with loging in or create new account:");
+        String password = scanner.nextLine();
+        try {
+            user = coworking.authenticateUser(login, password);
+        } catch (MemberNotFoundException e) {
+            runRegistrationRoutine(login, password);
+        } catch (WrongPasswordException e) {
+            System.out.println("Incorrect password. Please try again.");
+            loginOrRegister();
+        }
+        System.out.println("Access granted. Please enter command");
+        String command = scanner.nextLine();
+        executeCommand(command, user);
+    }
 
+    private static void runRegistrationRoutine(String login, String password) {
+        System.out.printf("Login `%S` not yet registered. Create new account Y/any?\n", login);
+        String input = scanner.nextLine();
+        if (input.equalsIgnoreCase("y")) {
+            System.out.println("Please confirm your password:");
+            String rePassword = scanner.nextLine();
+            if (!password.equals(rePassword)) {
+                System.out.println("Passwords don't match. Please repeat.");
+                loginOrRegister();
+            }
+            try {
+                coworking.registerNewUser(login, password);
+            } catch (MemberAlreadyExistsException ex) {
+                System.out.println("This login is already registered. Please try a different one.");
+                loginOrRegister();
+            }
+            System.out.printf("New user login `%s` registered. Please log in with your new credentials.\n", login);
+        }
+        loginOrRegister();
+    }
 
-//    public void authenticateUser() {
-//        int maxTrials = 3;
-//        System.out.println("Please enter username to log into the system or create new account, mere Enter to exit:");
-//        String login = scanner.nextLine();
-//        if (login.isEmpty()) {System.exit(0);}
-//        if (users.containsKey(login)) {
-//            System.out.println("Username recognized. Please enter your password or mere Enter to try another username:");
-//            String password = scanner.nextLine();
-//            while (!password.equals(users.get(login).getPassword()) && maxTrials > 0) {
-//                if (password.isEmpty()) {
-//                    authenticateUser();
-//                }
-//                maxTrials--;
-//                System.out.println("Incorrect password. Please try again. Mere Enter to exit.");
-//                password = scanner.nextLine();
-//            }
-//            if (maxTrials == 0) {
-//                authenticateUser();
-//            }
-//            System.out.println("Access granted. Please enter command");
-//            String command = scanner.nextLine();
-//            executeCommand(command);
-//        } else {
-//            System.out.println("There is no such user yet. Create new account Y/any?");
-//            String input = scanner.nextLine();
-//            if (input.equalsIgnoreCase("y")) {
-//                registerNewUser(login);
-//            }
-//            authenticateUser();
-//        }
-//    }
-//
-//    private void executeCommand(String command) {
-//        if (command.isEmpty()) {
-//            authenticateUser();
-//        }
-//        System.out.println(command);
-//        System.out.println("Please enter next command, mere Enter to log out");
-//        executeCommand(scanner.nextLine());
-//    }
+    private static void executeCommand(String command, User user) {
+        if (user == null) {
+            throw new NullPointerException("The user is not defined.");
+        }
+        if (command.isEmpty()) {
+            loginOrRegister();
+        }
+        System.out.println(command);
+        System.out.println("Please enter next command, mere Enter to log out");
+        executeCommand(scanner.nextLine(), user);
+    }
+
 }

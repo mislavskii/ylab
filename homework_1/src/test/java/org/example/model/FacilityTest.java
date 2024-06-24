@@ -64,7 +64,7 @@ class FacilityTest {
         Facility facility = new Workstation("ws001", "Celeron");
         var start1 = LocalDateTime.of(2024, 7, 6, 11, 0);
         var end1 = LocalDateTime.of(2024, 7, 8, 17, 0);
-        coworking.addBooking(null, facility, start1, end1);
+        coworking.addBooking(new User("u1", "pwd1"), facility, start1, end1);
         var relevantBookings = facility.getBookingsForDate(date, coworking.viewAllBookings());
         assertThat(relevantBookings).hasSize(1);
         System.out.println("Booked: " + relevantBookings);

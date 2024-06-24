@@ -2,24 +2,38 @@ package org.example;
 
 import org.example.model.User;
 import org.example.service.Coworking;
+import org.example.utils.Initializer;
 import org.example.utils.MemberAlreadyExistsException;
 import org.example.utils.MemberNotFoundException;
 import org.example.utils.WrongPasswordException;
+import org.example.view.ResponseBuilder;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class Main {
     private static final Coworking coworking = new Coworking();
     private static final Scanner scanner = new Scanner(System.in);
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
 
-    public static void main(String[] args) {
+    private static final String COMMANDS =
+            """
+            1 - List facilities
+            2 - Check availability""";
+
+    public static void main(String[] args) throws MemberAlreadyExistsException {
+        coworking.createAdminUser("admin", "admin");
         System.out.println("Hello! Welcome to Coworking!");
+        User testUser = new User("tu1", "tpwd1");
+        Initializer.populateFacilities(coworking);
 
-        loginOrRegister();
+        User user = loginOrRegister();
+        executeCommands(testUser);
 
     }
 
-    static void loginOrRegister() {
+    static User loginOrRegister() {
         User user = null;
         System.out.println("Please enter username to log into the system or create new account, mere Enter to exit:");
         String login = scanner.nextLine();
@@ -34,9 +48,8 @@ public class Main {
             System.out.println("Incorrect password. Please try again.");
             loginOrRegister();
         }
-        System.out.println("Access granted. Please enter command");
-        String command = scanner.nextLine();
-        executeCommand(command, user);
+        System.out.println("Access granted.");
+        return user;
     }
 
     private static void runRegistrationRoutine(String login, String password) {
@@ -60,16 +73,34 @@ public class Main {
         loginOrRegister();
     }
 
-    private static void executeCommand(String command, User user) {
+    public static void executeCommands(User user) {
         if (user == null) {
             throw new NullPointerException("The user is not defined.");
         }
+        System.out.println("Please enter command, mere Enter to log out\n" + COMMANDS);
+        String command = scanner.nextLine();
         if (command.isEmpty()) {
             loginOrRegister();
         }
-        System.out.println(command);
-        System.out.println("Please enter next command, mere Enter to log out");
-        executeCommand(scanner.nextLine(), user);
+        switch(command) {
+            case "1":
+                String response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
+                System.out.println(response);
+                break;
+            case "2":
+                System.out.println("Please enter date (YY.MM.DD):");
+                String textDate = scanner.nextLine();
+                LocalDate parsedDate = LocalDate.parse(textDate, formatter);
+                coworking.getAvailableBookingSlots(parsedDate).forEach((k, v) -> {
+                    System.out.println(k);
+                    System.out.println(v);
+                    System.out.println();
+                });
+                break;
+            default:
+                executeCommands(user);
+        }
+        executeCommands(user);
     }
 
 }

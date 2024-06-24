@@ -37,3 +37,4 @@ build/
 ### Mac OS ###
 .DS_Store
 /spec.md
+/src/main/java/org/example/utils/Initializer.java

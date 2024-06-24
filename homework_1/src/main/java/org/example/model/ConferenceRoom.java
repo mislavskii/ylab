@@ -8,4 +8,7 @@ public class ConferenceRoom extends Facility {
         this.seats = seats;
     }
 
+    public int getSeats() {
+        return seats;
+    }
 }

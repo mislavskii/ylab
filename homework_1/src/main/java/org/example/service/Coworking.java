@@ -1,8 +1,6 @@
 package org.example.service;
 
-import org.example.model.Booking;
-import org.example.model.Facility;
-import org.example.model.User;
+import org.example.model.*;
 import org.example.utils.MemberAlreadyExistsException;
 import org.example.utils.MemberNotFoundException;
 import org.example.utils.WrongPasswordException;

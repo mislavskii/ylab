@@ -275,11 +275,12 @@ class CoworkingTest {
     @Test
     void getAvailableBookingSlots() throws MemberAlreadyExistsException {
         LocalDate date = LocalDate.of(2024, 7, 7);
-        Set<Facility> facilities = new HashSet<>(Set.of(
+        Set<Facility> facilities = new HashSet<>(
+                Set.of(
                 new Workstation("ws001", "Celeron"),
                 new Workstation("ws002", "Core i5"),
-                new ConferenceRoom("cr001", 17)
-        ));
+                new ConferenceRoom("cr001", 17))
+        );
         assertThat(facilities).hasSize(3);
         facilities.forEach(facility -> {
             try {
@@ -297,4 +298,5 @@ class CoworkingTest {
         assertThat(freeSlots).hasSize(4);
         freeSlots.values().forEach(System.out::println);
     }
+
 }

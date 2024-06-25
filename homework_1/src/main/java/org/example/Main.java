@@ -29,15 +29,13 @@ public class Main {
     public static void main(String[] args) throws MemberAlreadyExistsException {
         coworking.createAdminUser("admin", "admin");
         System.out.println("Hello! Welcome to Coworking!");
-        User testUser = new User("tu1", "tpwd1");
         Initializer.populateFacilities(coworking);
 
-        User user = loginOrRegister();
-        executeCommands(user);
+        loginOrRegister();
 
     }
 
-    static User loginOrRegister() {
+    static void loginOrRegister() {
         User user = null;
         while (user == null) {
             System.out.println("Please enter username to log into the system or create new account, mere Enter to exit:");
@@ -56,17 +54,18 @@ public class Main {
             }
         }
         System.out.println("Access granted.");
-        return user;
+        executeCommands(user);
     }
 
     private static void runRegistrationRoutine(String login, String password) {
-        System.out.printf("Login `%S` not yet registered. Create new account Y/any?\n", login);
+        System.out.printf("Login `%s` not yet registered. Create new account Y/any?\n", login);
         String input = SCANNER.nextLine();
         if (input.equalsIgnoreCase("y")) {
             System.out.println("Please confirm your password:");
             String rePassword = SCANNER.nextLine();
             if (!password.equals(rePassword)) {
                 System.out.println("Passwords don't match. Please repeat.");
+                return;
             }
             try {
                 coworking.registerNewUser(login, password);
@@ -78,31 +77,33 @@ public class Main {
     }
 
     public static void executeCommands(User user) {
-        if (user == null) {
-            throw new NullPointerException("The user is not defined.");
-        }
-        System.out.println("Please enter command, mere Enter to log out\n" + COMMANDS);
-        String command = SCANNER.nextLine();
-        if (command.isEmpty()) {
-            loginOrRegister();
-        }
-        String response;
-        switch (command) {
-            case "1" -> {
-                response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
-                System.out.println(response);
+        while (true) {
+            if (user == null) {
+                throw new NullPointerException("The user is not defined.");
             }
-            case "2" -> {
-                System.out.println("Please enter date (YY-MM-DD):");
-                String textDate = SCANNER.nextLine();
-                LocalDate parsedDate = LocalDate.parse(textDate, DATE_FORMATTER);
-                response = ResponseBuilder.listFreeSlots(coworking.getAvailableBookingSlots(parsedDate));
-                System.out.println(response);
+            System.out.println("Please enter command, mere Enter to log out\n" + COMMANDS);
+            String command = SCANNER.nextLine();
+            if (command.isEmpty()) {
+                break;
             }
-            case "3" -> placeBooking(user);
-            default -> executeCommands(user);
+            String response;
+            switch (command) {
+                case "1" -> {
+                    response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
+                    System.out.println(response);
+                }
+                case "2" -> {
+                    System.out.println("Please enter date (YY-MM-DD):");
+                    String textDate = SCANNER.nextLine();
+                    LocalDate parsedDate = LocalDate.parse(textDate, DATE_FORMATTER);
+                    response = ResponseBuilder.listFreeSlots(coworking.getAvailableBookingSlots(parsedDate));
+                    System.out.println(response);
+                }
+                case "3" -> placeBooking(user);
+                default -> System.out.println("Unknown command. Please try again.");
+            }
         }
-        executeCommands(user);
+        loginOrRegister();
     }
 
     private static void placeBooking(User user) {
@@ -110,20 +111,27 @@ public class Main {
                 "Please enter facility number, start datetime (YY-MM-DD HH:MM), end datetime (YY-MM-DD HH:MM), " +
                         "separated by commas. Mere Enter to return to the menu:"
         );
-        String booking = SCANNER.nextLine();
-        if (booking.isEmpty()) {
-            executeCommands(user);
+        String bookingData = SCANNER.nextLine();
+        if (bookingData.isEmpty()) {
+            return;
         }
-        var split = booking.split(",\\s*");
+        var split = bookingData.split(",\\s*");
         Facility facility = null;
         try {
             facility = coworking.getFacility(split[0].toLowerCase());
         } catch (MemberNotFoundException e) {
             System.out.println("Facility not found. Please consider resubmitting.");
-            placeBooking(user);
+            return;
         }
-        var start = LocalDateTime.parse(split[1], DATE_TIME_FORMATTER);
-        var end = LocalDateTime.parse(split[2], DATE_TIME_FORMATTER);
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        try {
+            start = LocalDateTime.parse(split[1], DATE_TIME_FORMATTER);
+            end = LocalDateTime.parse(split[2], DATE_TIME_FORMATTER);
+        } catch (Exception e) {
+            System.out.println("Error parsing booking details. Please consider resubmitting.");
+            return;
+        }
         String response = coworking.addBooking(user, facility, start, end) ?
                 "Booking placed successfully." : "Something went wrong. Please consider retry.";
         System.out.println(response);

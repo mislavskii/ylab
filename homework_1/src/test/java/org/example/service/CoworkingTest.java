@@ -191,6 +191,18 @@ class CoworkingTest {
     }
 
     @Test
+    void whole_day_bookings_added() {
+        User user = new User("u1", "pwd1");
+        Workstation workstation = new Workstation("ws001", "Celeron");
+        ConferenceRoom room = new ConferenceRoom("cr001", 35);
+        var start = LocalDateTime.of(2024, 7, 7, 0, 0);
+        var end = LocalDateTime.of(2024, 7, 7, 23, 59);
+        coworking.addBooking(user, workstation, start, end);
+        coworking.addBooking(user, room, start, end);
+        assertThat(coworking.viewAllBookings()).hasSize(2);
+    }
+
+    @Test
     void overlapping_booking_not_added() {
         User user = new User("u1", "pwd1");
         Workstation workstation = new Workstation("ws001", "Celeron");

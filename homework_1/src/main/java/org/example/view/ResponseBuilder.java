@@ -25,13 +25,11 @@ public class ResponseBuilder {
         StringBuilder response = new StringBuilder("\nAvailable booking slots:\n");
         slots.forEach((facility, freeSlots) -> {
             response.append(facility.getIdNumber().toUpperCase()).append(": ");
-//            response.append(formatter.format(freeSlots.first().getStart())).append(" - ")
-//                    .append(formatter.format(freeSlots.pollFirst().getEnd()));
             freeSlots.forEach(slot -> {
                 response.append(formatter.format(slot.getStart())).append(" - ")
                         .append(formatter.format(slot.getEnd())).append(", ");
-                response.append("\b\b.\n");
             });
+            response.append("\b\b.\n");
         });
         return response.toString();
     }

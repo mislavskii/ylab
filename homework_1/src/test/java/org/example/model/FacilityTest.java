@@ -81,6 +81,16 @@ class FacilityTest {
     }
 
     @Test
+    void three_bookings_amidst_one_day_handled() {
+        LocalDate date = LocalDate.of(2024, 7, 7);
+        Facility facility = new Workstation("ws001", "Celeron");
+        TestUtils.addThreeBookingsAmidstDay(facility, coworking, date);
+        assertThat(coworking.viewAllBookings()).hasSize(3);
+        var freeSlots = facility.getFreeBookingSlotsForDate(date, coworking.viewAllBookings());
+        assertThat(freeSlots).hasSize(4);
+    }
+
+    @Test
     void overstretching_booking_free_slots_empty() {
         LocalDate date = LocalDate.of(2024, 7, 7);
         Facility facility = new Workstation("ws001", "Celeron");

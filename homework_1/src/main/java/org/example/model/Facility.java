@@ -28,12 +28,15 @@ public abstract class Facility implements Comparable<Facility> {
             freeSlots.add(freeSlot);
             return freeSlots;
         }
-        Booking first = bookedSlots.pollFirst();
+        Booking first = bookedSlots.first();
         if (first.getStart().isBefore(startOfDay) && first.getEnd().isAfter(endOfDay)) {
             return freeSlots;
         }
-        var begin = first.getStart().isBefore(startOfDay) ? first.getEnd() : startOfDay;
+        var begin = !first.getStart().isAfter(startOfDay) ? first.getEnd() : startOfDay;
         var end = first.getEnd().isAfter(endOfDay) ? first.getStart() : endOfDay;
+        if (first.getStart().isBefore(startOfDay)) {
+            bookedSlots.pollFirst();
+        }
         if (bookedSlots.isEmpty()) {
             Booking freeSlot = new Booking(null, this, begin, end);
             freeSlots.add(freeSlot);
@@ -44,6 +47,9 @@ public abstract class Facility implements Comparable<Facility> {
             end = nextBookedSlot.getStart();
             freeSlots.add(new Booking(null, this, begin, end));
             begin = nextBookedSlot.getEnd();
+        }
+        if (begin.isBefore(endOfDay)) {
+            freeSlots.add(new Booking(null, this, begin, endOfDay));
         }
         return freeSlots;
     }

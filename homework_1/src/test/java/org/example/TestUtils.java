@@ -66,4 +66,17 @@ public class TestUtils {
         );
     }
 
+    public static void addThreeBookingsAmidstDay(Facility facility, Coworking coworking, LocalDate date) {
+        var user = new User("u1", "pwd1");
+        var start2 = LocalDateTime.of(date, LocalTime.of(6, 0));
+        var end2 = LocalDateTime.of(date, LocalTime.of(8, 0));
+        coworking.addBooking(user, facility, start2, end2);
+        var start3 = LocalDateTime.of(date, LocalTime.of(11, 0));
+        var end3 = LocalDateTime.of(date, LocalTime.of(17, 0));
+        coworking.addBooking(user, facility, start3, end3);
+        var start4 = LocalDateTime.of(date, LocalTime.of(19, 0));
+        var end4 = LocalDateTime.of(date, LocalTime.of(21, 0));
+        coworking.addBooking(user, facility, start4, end4);
+    }
+
 }

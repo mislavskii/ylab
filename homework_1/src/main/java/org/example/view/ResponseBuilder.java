@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class ResponseBuilder {
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+    static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
     public static String listFacilities(List<Facility> facilities) {
         StringBuilder response = new StringBuilder("\nCoworking has the following facilities:\n");

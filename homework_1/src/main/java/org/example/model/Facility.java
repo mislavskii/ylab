@@ -6,7 +6,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public abstract class Facility implements Comparable<Facility> {
-    public int INTER_BOOKING_GAP = 15;
+    public final int INTER_BOOKING_GAP = 15;
     private final String idNumber;
 
     public Facility(String idNumber) {

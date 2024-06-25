@@ -32,25 +32,28 @@ public class Main {
         User testUser = new User("tu1", "tpwd1");
         Initializer.populateFacilities(coworking);
 
-//        User user = loginOrRegister();
-        executeCommands(testUser);
+        User user = loginOrRegister();
+        executeCommands(user);
 
     }
 
     static User loginOrRegister() {
         User user = null;
-        System.out.println("Please enter username to log into the system or create new account, mere Enter to exit:");
-        String login = SCANNER.nextLine();
-        if (login.isEmpty()) {System.exit(0);}
-        System.out.println("Please enter password to proceed with loging in or create new account:");
-        String password = SCANNER.nextLine();
-        try {
-            user = coworking.authenticateUser(login, password);
-        } catch (MemberNotFoundException e) {
-            runRegistrationRoutine(login, password);
-        } catch (WrongPasswordException e) {
-            System.out.println("Incorrect password. Please try again.");
-            loginOrRegister();
+        while (user == null) {
+            System.out.println("Please enter username to log into the system or create new account, mere Enter to exit:");
+            String login = SCANNER.nextLine();
+            if (login.isEmpty()) {
+                System.exit(0);
+            }
+            System.out.println("Please enter password to proceed with logging in or create new account:");
+            String password = SCANNER.nextLine();
+            try {
+                user = coworking.authenticateUser(login, password);
+            } catch (MemberNotFoundException e) {
+                runRegistrationRoutine(login, password);
+            } catch (WrongPasswordException e) {
+                System.out.println("Incorrect password. Please try again.");
+            }
         }
         System.out.println("Access granted.");
         return user;
@@ -64,17 +67,14 @@ public class Main {
             String rePassword = SCANNER.nextLine();
             if (!password.equals(rePassword)) {
                 System.out.println("Passwords don't match. Please repeat.");
-                loginOrRegister();
             }
             try {
                 coworking.registerNewUser(login, password);
             } catch (MemberAlreadyExistsException ex) {
                 System.out.println("This login is already registered. Please try a different one.");
-                loginOrRegister();
             }
             System.out.printf("New user login `%s` registered. Please log in with your new credentials.\n", login);
         }
-        loginOrRegister();
     }
 
     public static void executeCommands(User user) {
@@ -99,9 +99,7 @@ public class Main {
                 response = ResponseBuilder.listFreeSlots(coworking.getAvailableBookingSlots(parsedDate));
                 System.out.println(response);
             }
-            case "3" -> {
-                placeBooking(user);
-            }
+            case "3" -> placeBooking(user);
             default -> executeCommands(user);
         }
         executeCommands(user);

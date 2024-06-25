@@ -25,10 +25,8 @@ public class ResponseBuilder {
         StringBuilder response = new StringBuilder("\nAvailable booking slots:\n");
         slots.forEach((facility, freeSlots) -> {
             response.append(facility.getIdNumber().toUpperCase()).append(": ");
-            freeSlots.forEach(slot -> {
-                response.append(formatter.format(slot.getStart())).append(" - ")
-                        .append(formatter.format(slot.getEnd())).append(", ");
-            });
+            freeSlots.forEach(slot -> response.append(formatter.format(slot.getStart())).append(" - ")
+                    .append(formatter.format(slot.getEnd())).append(", "));
             response.append("\b\b.\n");
         });
         return response.toString();
@@ -40,10 +38,8 @@ public class ResponseBuilder {
                 .collect(Collectors.toCollection(TreeSet::new));
         if (!rooms.isEmpty()) {
             response.append("\nConference Rooms:\n");
-            rooms.forEach(room -> {
-                response.append(room.getIdNumber().toUpperCase()).append(" - ")
-                        .append(((ConferenceRoom) room).getSeats()).append(" seats\n");
-            });
+            rooms.forEach(room -> response.append(room.getIdNumber().toUpperCase()).append(" - ")
+                    .append(((ConferenceRoom) room).getSeats()).append(" seats\n"));
         }
     }
 
@@ -53,10 +49,8 @@ public class ResponseBuilder {
                 .collect(Collectors.toCollection(TreeSet::new));
         if (!stations.isEmpty()) {
             response.append("\nWorkstations:\n");
-            stations.forEach(s -> {
-                response.append(s.getIdNumber().toUpperCase()).append(" - ")
-                        .append(((Workstation) s).getDescription()).append('\n');
-            });
+            stations.forEach(s -> response.append(s.getIdNumber().toUpperCase()).append(" - ")
+                    .append(((Workstation) s).getDescription()).append('\n'));
         }
     }
 

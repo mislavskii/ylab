@@ -31,4 +31,10 @@ public class User {
         return isAdmin;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "login='" + login + '\'' +
+                '}';
+    }
 }

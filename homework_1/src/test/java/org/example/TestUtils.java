@@ -79,4 +79,44 @@ public class TestUtils {
         coworking.addBooking(user, facility, start4, end4);
     }
 
+    public static void addTwoOutstretchingBookingsUnder45Apart(Facility facility, Coworking coworking, LocalDate date) {
+        var user = new User("u1", "pwd1");
+        coworking.addBooking(
+                user, facility,
+                LocalDateTime.of(date.minusDays(1), LocalTime.of(17, 0)),
+                LocalDateTime.of(date, LocalTime.of(11, 0))
+        );
+        coworking.addBooking(
+                user, facility,
+                LocalDateTime.of(date, LocalTime.of(11, 44)),
+                LocalDateTime.of(date.plusDays(1), LocalTime.of(17, 0))
+        );
+    }
+
+    public static void addTwoInnerBookingsUnder45Apart(Facility facility, Coworking coworking, LocalDate date) {
+        var user = new User("u1", "pwd1");
+        coworking.addBooking(
+                user, facility,
+                LocalDateTime.of(date, LocalTime.of(8, 0)),
+                LocalDateTime.of(date, LocalTime.of(11, 0))
+        );
+        coworking.addBooking(
+                user, facility,
+                LocalDateTime.of(date, LocalTime.of(11, 44)),
+                LocalDateTime.of(date, LocalTime.of(17, 0))
+        );
+    }
+
+    public static void addTwoInnerBookingsGapApart(Facility facility, Coworking coworking, LocalDate date, long gap) {
+        var user = new User("u1", "pwd1");
+        var start1 = LocalDateTime.of(date, LocalTime.of(8, 0));
+        var end1 = LocalDateTime.of(date, LocalTime.of(11, 0));
+        coworking.addBooking(user, facility, start1, end1);
+        coworking.addBooking(
+                user, facility,
+                end1.plusMinutes(gap),
+                LocalDateTime.of(date, LocalTime.of(17, 0))
+        );
+    }
+
 }

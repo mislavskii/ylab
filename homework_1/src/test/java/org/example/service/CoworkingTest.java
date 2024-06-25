@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.thenNoException;
@@ -154,7 +155,7 @@ class CoworkingTest {
     }
 
     @Test
-    void getFacility() throws MemberAlreadyExistsException {
+    void getFacility() throws MemberAlreadyExistsException, MemberNotFoundException {
         Workstation workstation = new Workstation("ws001", "Celeron");
         ConferenceRoom room = new ConferenceRoom("cr001", 7);
         coworking.addFacility(workstation);
@@ -203,9 +204,9 @@ class CoworkingTest {
         assertThat(booking1).isEqualTo(booking2);
         coworking.addBooking(user, workstation, start1, end1);
         assertThat(coworking.addBooking(user, workstation, start2, end2)).isFalse();
-        var actualBookings = coworking.viewAllBookings();
+        var actualBookings = new TreeSet<>(coworking.viewAllBookings());
         assertThat(actualBookings).hasSize(1);
-        assertThat(actualBookings.get(0).getStart()).isEqualTo(booking1.getStart());
+        assertThat(actualBookings.first().getStart()).isEqualTo(booking1.getStart());
     }
 
     @Test

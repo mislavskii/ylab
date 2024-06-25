@@ -69,8 +69,12 @@ public class Coworking {
         }
     }
 
-    public Facility getFacility(String idNumber) {
-        return facilities.get(idNumber);
+    public Facility getFacility(String idNumber) throws MemberNotFoundException {
+        Facility facility = facilities.get(idNumber);
+        if (facility == null) {
+            throw new MemberNotFoundException();
+        }
+        return facility;
     }
 
     public List<Facility> viewAllFacilities() {
@@ -82,6 +86,7 @@ public class Coworking {
         facilities.remove(idNumber);
     }
 
+    // TODO: Prevent bookings less than facility-type gap apart from being added
     public boolean addBooking(User user, Facility facility, LocalDateTime start, LocalDateTime end) {
         return bookings.add(new Booking(user, facility, start, end));
     }
@@ -101,9 +106,9 @@ public class Coworking {
         return bookings.remove(toRemove);
     }
 
-    public List<Booking> viewAllBookings() {
-        var view = new ArrayList<>(bookings);
-        return Collections.unmodifiableList(view);
+    public Set<Booking> viewAllBookings() {
+        var view = new HashSet<>(bookings);
+        return Collections.unmodifiableSet(view);
     }
 
     public Map<Facility, TreeSet<Booking>> getAvailableBookingSlots(LocalDate date) {

@@ -1,13 +1,12 @@
 package org.example.model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public abstract class Facility implements Comparable<Facility> {
+    public int INTER_BOOKING_GAP = 15;
     private final String idNumber;
 
     public Facility(String idNumber) {
@@ -29,12 +28,15 @@ public abstract class Facility implements Comparable<Facility> {
             return freeSlots;
         }
         Booking first = bookedSlots.first();
-        if (first.getStart().isBefore(startOfDay) && first.getEnd().isAfter(endOfDay)) {
+        if (first.getStart().isBefore(startOfDay.plusMinutes(INTER_BOOKING_GAP))
+                && first.getEnd().isAfter(endOfDay.minusMinutes(INTER_BOOKING_GAP))) {
             return freeSlots;
         }
-        var begin = !first.getStart().isAfter(startOfDay) ? first.getEnd() : startOfDay;
-        var end = first.getEnd().isAfter(endOfDay) ? first.getStart() : endOfDay;
-        if (first.getStart().isBefore(startOfDay)) {
+        LocalDateTime begin = first.getStart().isBefore(startOfDay.minusMinutes(INTER_BOOKING_GAP)) ?
+                first.getEnd().plusMinutes(INTER_BOOKING_GAP) : startOfDay;
+        LocalDateTime end = first.getEnd().isAfter(endOfDay.plusMinutes(INTER_BOOKING_GAP)) ?
+                first.getStart().minusMinutes(INTER_BOOKING_GAP) : endOfDay;
+        if (first.getStart().isBefore(startOfDay.minusMinutes(INTER_BOOKING_GAP))) {
             bookedSlots.pollFirst();
         }
         if (bookedSlots.isEmpty()) {
@@ -44,9 +46,14 @@ public abstract class Facility implements Comparable<Facility> {
         }
         while (!bookedSlots.isEmpty()) {
             var nextBookedSlot = bookedSlots.pollFirst();
-            end = nextBookedSlot.getStart();
-            freeSlots.add(new Booking(null, this, begin, end));
-            begin = nextBookedSlot.getEnd();
+            end = nextBookedSlot.getStart().minusMinutes(INTER_BOOKING_GAP);
+            try {
+                var freeSlot = new Booking(null, this, begin, end);
+                if (Duration.between(freeSlot.getStart(), freeSlot.getEnd()).toMinutes() >= INTER_BOOKING_GAP) {
+                    freeSlots.add(freeSlot);
+                }
+            } catch (IllegalArgumentException ignored) {}
+            begin = nextBookedSlot.getEnd().plusMinutes(INTER_BOOKING_GAP);
         }
         if (begin.isBefore(endOfDay)) {
             freeSlots.add(new Booking(null, this, begin, endOfDay));
@@ -65,8 +72,8 @@ public abstract class Facility implements Comparable<Facility> {
     private Booking getDummyBooking(LocalDate date) {
         return new Booking(
                 null, this,
-                LocalDateTime.of(date, LocalTime.MIN),
-                LocalDateTime.of(date, LocalTime.MAX)
+                LocalDateTime.of(date.minusDays(1), LocalTime.MIN.minusMinutes(INTER_BOOKING_GAP)),
+                LocalDateTime.of(date.plusDays(1), LocalTime.MIN.plusMinutes(INTER_BOOKING_GAP))
         );
     }
 

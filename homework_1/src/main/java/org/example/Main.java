@@ -8,6 +8,8 @@ import org.example.utils.MemberAlreadyExistsException;
 import org.example.utils.MemberNotFoundException;
 import org.example.utils.WrongPasswordException;
 import org.example.view.ResponseBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +39,7 @@ public class Main {
 
     public static void main(String[] args) throws MemberAlreadyExistsException {
         System.out.println("Hello! Welcome to Coworking!");
-        Initializer.initialize(coworking);
+        Initializer.populate(coworking);
 
         loginOrRegister();
 
@@ -85,28 +87,33 @@ public class Main {
     }
 
     public static void executeCommands(User user) {
+        String prompt = "Please enter command, mere Enter to log out\n";
         while (true) {
             if (user == null) {
                 throw new NullPointerException("The user is not defined.");
             }
-            System.out.println("Please enter command, mere Enter to log out\n" + COMMANDS);
+            String userMenu = prompt + COMMANDS;
+            String adminMenu = userMenu + '\n' + ADMIN_COMMANDS;
+            String menu = user.isAdmin() ? adminMenu : userMenu;
+            System.out.println(menu);
             String command = SCANNER.nextLine();
             if (command.isEmpty()) {
                 break;
             }
             switch (command) {
-                case "1" -> listFacilities();
+                case "1" -> viewFacilities();
                 case "2" -> checkAvailability();
                 case "3" -> placeBooking(user);
                 case "4" -> viewUserBookings(user);
                 case "5" -> removeBooking(user);
+                case "6" -> viewBookings(user);
                 default -> System.out.println("Unknown command. Please try again.");
             }
         }
         loginOrRegister();
     }
 
-    private static void listFacilities() {
+    private static void viewFacilities() {
         String response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
         System.out.println(response);
     }
@@ -140,7 +147,7 @@ public class Main {
     }
 
     private static void viewUserBookings(User user)  {
-        String response = ResponseBuilder.listBookings(user, coworking);
+        String response = ResponseBuilder.listUserBookings(user, coworking);
         System.out.println(response);
     }
 
@@ -169,7 +176,39 @@ public class Main {
         System.out.println(response);
     }
 
-    private static Map<String, Object> parseBookingDetails(String bookingData) {
+    private static void viewBookings(@NotNull User admin) {
+        if (!admin.isAdmin()) {
+            System.out.println("You are not authorized to issue this command");
+            return;
+        }
+        System.out.println("Enter `user <login>` (user u1) or `facility <id number>` (facility CR001) to apply filter, " +
+                "mere Enter to proceed with no filtering.");
+        var input = SCANNER.nextLine().toLowerCase().split("\\s+");
+        switch (input[0].trim()) {
+            case "user" -> viewLoginBookings(admin, input[1]);
+            case "facility" -> viewFacilityBookings(admin, input[1]);
+            default -> {
+                String response = ResponseBuilder.listAllBookings(admin, coworking);
+                System.out.println(response);
+            }
+        }
+    }
+
+    private static void viewFacilityBookings(@NotNull User admin, String idNumber) {
+        if (!admin.isAdmin()) {
+            System.out.println("You are not authorized to issue this command");
+            return;
+        }
+        String response = ResponseBuilder.listFacilityBookings(admin, idNumber, coworking);
+        System.out.println(response);
+    }
+
+    private static void viewLoginBookings(User admin, String userLogin) {
+        String response = ResponseBuilder.listUserBookings(admin, userLogin, coworking);
+        System.out.println(response);
+    }
+
+    private static @Nullable Map<String, Object> parseBookingDetails(@NotNull String bookingData) {
         Map<String, Object> parsed = new HashMap<>();
         var split = bookingData.split(",\\s*");
         try {
@@ -178,8 +217,7 @@ public class Main {
             System.out.println("Facility not found. Please consider retry.");
             return null;
         }
-        LocalDateTime start = null;
-        LocalDateTime end = null;
+
         try {
             parsed.put("start", LocalDateTime.parse(split[1].trim(), DATE_TIME_FORMATTER));
             parsed.put("end", LocalDateTime.parse(split[2].trim(), DATE_TIME_FORMATTER));

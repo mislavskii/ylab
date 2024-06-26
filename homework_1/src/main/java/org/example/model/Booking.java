@@ -34,7 +34,7 @@ public class Booking implements Comparable<Booking> {
         return user;
     }
 
-    public boolean isOverlapping(Booking other) {
+    public boolean isOverlapping(Booking other) { // TODO: add facility-specific gap
         return !getEnd().isBefore(other.getStart()) && !getStart().isAfter(other.getEnd());
     }
 
@@ -52,7 +52,7 @@ public class Booking implements Comparable<Booking> {
     }
 
     @Override
-    public int compareTo(Booking other) {
+    public int compareTo(Booking other) {  // TODO: include end
         if (getStart().isBefore(other.getStart())) {
             return -1;
         }

@@ -4,9 +4,7 @@ import org.example.model.*;
 import org.example.service.Coworking;
 
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ResponseBuilder {
@@ -30,19 +28,57 @@ public class ResponseBuilder {
         return response.toString();
     }
 
-    public static String listBookings(User user, Coworking coworking) {
+    public static String listUserBookings(User user, Coworking coworking) {
         StringBuilder response = new StringBuilder(String.format("\nBookings placed by `%s`:\n", user.getLogin()));
         var userBookings = coworking.viewAllBookings().stream()
                 .filter(booking -> booking.getUser().equals(user))
-                .collect(Collectors.toCollection(TreeSet::new));
-        if (userBookings.isEmpty()) {
+                .collect(Collectors.toList());
+        return buildBookingList(response, userBookings);
+    }
+
+    public static String listUserBookings(User admin, String userLogin, Coworking coworking) {
+        if (!admin.isAdmin()) return null;
+        StringBuilder response = new StringBuilder(String.format("\nBookings placed by `%s`:\n", userLogin));
+        var userBookings = coworking.viewAllBookings().stream()
+                .filter(booking -> booking.getUser().getLogin().equals(userLogin))
+                .collect(Collectors.toList());
+        return buildBookingList(response, userBookings);
+    }
+
+    private static String buildBookingList(StringBuilder response, List<Booking> bookings) {
+        if (bookings.isEmpty()) {
             response.append("\b None");
             return response.toString();
         }
-        userBookings.forEach(booking -> {
+        bookings.stream().sorted(Booking::compareTo).forEach(booking -> {
             response.append(booking.getFacility().getIdNumber().toUpperCase())
                     .append(" from ").append(booking.getStart().toString())
                     .append(" to ").append(booking.getEnd().toString()).append('\n');
+        });
+        return response.toString();
+    }
+
+    public static String listAllBookings(User admin, Coworking coworking) {
+        if (!admin.isAdmin()) return null;
+        StringBuilder response = new StringBuilder("\nAll bookings in the system:\n");
+        new ArrayList<>(coworking.viewAllBookings()).stream().sorted().forEach(booking -> {
+            response.append(booking.getStart().toString()).append(" to ").append(booking.getEnd().toString())
+                    .append(" - facility: ").append(booking.getFacility().getIdNumber().toUpperCase())
+                    .append(" - user: ").append(booking.getUser().getLogin()).append('\n');
+        });
+        return response.toString();
+    }
+
+    public static String listFacilityBookings(User admin, String idNumber, Coworking coworking) {
+        if (!admin.isAdmin()) return null;
+        StringBuilder response = new StringBuilder(String.format("\nBookings placed for `%s`:\n", idNumber));
+        List<Booking> bookings = coworking.viewAllBookings().stream()
+                .filter(booking -> booking.getFacility().getIdNumber().equals(idNumber))
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (bookings.isEmpty()) return response.append("\b None").toString();
+        bookings.stream().sorted().forEach(booking -> {
+            response.append(booking.getStart().toString()).append(" to ").append(booking.getEnd().toString())
+                    .append(" user: ").append(booking.getUser().getLogin()).append('\n');
         });
         return response.toString();
     }

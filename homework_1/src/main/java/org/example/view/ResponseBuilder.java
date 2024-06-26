@@ -1,9 +1,7 @@
 package org.example.view;
 
-import org.example.model.Booking;
-import org.example.model.ConferenceRoom;
-import org.example.model.Facility;
-import org.example.model.Workstation;
+import org.example.model.*;
+import org.example.service.Coworking;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -28,6 +26,23 @@ public class ResponseBuilder {
             freeSlots.forEach(slot -> response.append(formatter.format(slot.getStart())).append(" - ")
                     .append(formatter.format(slot.getEnd())).append(", "));
             response.append("\b\b.\n");
+        });
+        return response.toString();
+    }
+
+    public static String listBookings(User user, Coworking coworking) {
+        StringBuilder response = new StringBuilder(String.format("\nBookings placed by `%s`:\n", user.getLogin()));
+        var userBookings = coworking.viewAllBookings().stream()
+                .filter(booking -> booking.getUser().getLogin().equals(user.getLogin()))
+                .collect(Collectors.toCollection(TreeSet::new));
+        if (userBookings.isEmpty()) {
+            response.append("\b None");
+            return response.toString();
+        }
+        userBookings.forEach(booking -> {
+            response.append(booking.getFacility().getIdNumber().toUpperCase())
+                    .append(" from ").append(booking.getStart().toString())
+                    .append(" to ").append(booking.getEnd().toString()).append('\n');
         });
         return response.toString();
     }

@@ -12,6 +12,7 @@ import org.example.view.ResponseBuilder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 public class Main {
@@ -24,12 +25,12 @@ public class Main {
             """
             1 - List facilities
             2 - Check availability
-            3 - Place booking""";
+            3 - Place booking
+            4 - View your bookings""";
 
     public static void main(String[] args) throws MemberAlreadyExistsException {
-        coworking.createAdminUser("admin", "admin");
         System.out.println("Hello! Welcome to Coworking!");
-        Initializer.populateFacilities(coworking);
+        Initializer.initialize(coworking);
 
         loginOrRegister();
 
@@ -88,22 +89,27 @@ public class Main {
             }
             String response;
             switch (command) {
-                case "1" -> {
-                    response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
-                    System.out.println(response);
-                }
-                case "2" -> {
-                    System.out.println("Please enter date (YY-MM-DD):");
-                    String textDate = SCANNER.nextLine();
-                    LocalDate parsedDate = LocalDate.parse(textDate, DATE_FORMATTER);
-                    response = ResponseBuilder.listFreeSlots(coworking.getAvailableBookingSlots(parsedDate));
-                    System.out.println(response);
-                }
+                case "1" -> listFacilities();
+                case "2" -> checkAvailability();
                 case "3" -> placeBooking(user);
+                case "4" -> viewUserBookings(user);
                 default -> System.out.println("Unknown command. Please try again.");
             }
         }
         loginOrRegister();
+    }
+
+    private static void listFacilities() {
+        String response = ResponseBuilder.listFacilities(coworking.viewAllFacilities());
+        System.out.println(response);
+    }
+
+    private static void checkAvailability() {
+        System.out.println("Please enter date (YY-MM-DD):");
+        String textDate = SCANNER.nextLine();
+        LocalDate parsedDate = LocalDate.parse(textDate, DATE_FORMATTER);
+        String response = ResponseBuilder.listFreeSlots(coworking.getAvailableBookingSlots(parsedDate));
+        System.out.println(response);
     }
 
     private static void placeBooking(User user) {
@@ -128,12 +134,17 @@ public class Main {
         try {
             start = LocalDateTime.parse(split[1], DATE_TIME_FORMATTER);
             end = LocalDateTime.parse(split[2], DATE_TIME_FORMATTER);
-        } catch (Exception e) {
+        } catch (DateTimeParseException e) {
             System.out.println("Error parsing booking details. Please consider resubmitting.");
             return;
         }
         String response = coworking.addBooking(user, facility, start, end) ?
                 "Booking placed successfully." : "Something went wrong. Please consider retry.";
+        System.out.println(response);
+    }
+
+    private static void viewUserBookings(User user)  {
+        String response = ResponseBuilder.listBookings(user, coworking);
         System.out.println(response);
     }
 

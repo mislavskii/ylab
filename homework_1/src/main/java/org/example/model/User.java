@@ -32,6 +32,22 @@ public class User {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+
+        if (isAdmin() != user.isAdmin()) return false;
+        return getLogin().equals(user.getLogin());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getLogin().hashCode();
+        result = 31 * result + (isAdmin() ? 1 : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "User{" +
                 "login='" + login + '\'' +

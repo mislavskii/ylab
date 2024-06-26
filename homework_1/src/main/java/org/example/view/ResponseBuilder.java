@@ -33,7 +33,7 @@ public class ResponseBuilder {
     public static String listBookings(User user, Coworking coworking) {
         StringBuilder response = new StringBuilder(String.format("\nBookings placed by `%s`:\n", user.getLogin()));
         var userBookings = coworking.viewAllBookings().stream()
-                .filter(booking -> booking.getUser().getLogin().equals(user.getLogin()))
+                .filter(booking -> booking.getUser().equals(user))
                 .collect(Collectors.toCollection(TreeSet::new));
         if (userBookings.isEmpty()) {
             response.append("\b None");

@@ -26,7 +26,14 @@ public class Main {
             1 - List facilities
             2 - Check availability
             3 - Place booking
-            4 - View your bookings""";
+            4 - View your bookings
+            5 - Remove your booking""";
+
+    private static final String ADMIN_COMMANDS =
+            """
+            6 - View all bookings with filtering on facility / user
+            7 - Remove any booking
+            8 - Manage facility""";
 
     public static void main(String[] args) throws MemberAlreadyExistsException {
         System.out.println("Hello! Welcome to Coworking!");
@@ -87,12 +94,12 @@ public class Main {
             if (command.isEmpty()) {
                 break;
             }
-            String response;
             switch (command) {
                 case "1" -> listFacilities();
                 case "2" -> checkAvailability();
                 case "3" -> placeBooking(user);
                 case "4" -> viewUserBookings(user);
+                case "5" -> removeBooking(user);
                 default -> System.out.println("Unknown command. Please try again.");
             }
         }
@@ -121,24 +128,13 @@ public class Main {
         if (bookingData.isEmpty()) {
             return;
         }
-        var split = bookingData.split(",\\s*");
-        Facility facility = null;
-        try {
-            facility = coworking.getFacility(split[0].toLowerCase());
-        } catch (MemberNotFoundException e) {
-            System.out.println("Facility not found. Please consider resubmitting.");
+        Map<String, Object> parsed = parseBookingDetails(bookingData);
+        if (parsed == null) {
             return;
         }
-        LocalDateTime start = null;
-        LocalDateTime end = null;
-        try {
-            start = LocalDateTime.parse(split[1], DATE_TIME_FORMATTER);
-            end = LocalDateTime.parse(split[2], DATE_TIME_FORMATTER);
-        } catch (DateTimeParseException e) {
-            System.out.println("Error parsing booking details. Please consider resubmitting.");
-            return;
-        }
-        String response = coworking.addBooking(user, facility, start, end) ?
+        String response = coworking.addBooking(
+                user, (Facility) parsed.get("facility"),
+                (LocalDateTime) parsed.get("start"), (LocalDateTime) parsed.get("end")) ?
                 "Booking placed successfully." : "Something went wrong. Please consider retry.";
         System.out.println(response);
     }
@@ -146,6 +142,52 @@ public class Main {
     private static void viewUserBookings(User user)  {
         String response = ResponseBuilder.listBookings(user, coworking);
         System.out.println(response);
+    }
+
+    private static void removeBooking(User user) {
+        System.out.println(
+                "Please enter booking's facility number, start datetime (YY-MM-DD HH:MM), end datetime (YY-MM-DD HH:MM), " +
+                        "separated by commas. Mere Enter to return to the menu:"
+        );
+        String bookingData = SCANNER.nextLine();
+        Map<String, Object> parsed = parseBookingDetails(bookingData);
+        if (parsed == null) return;
+        String response = null;
+        try {
+            response = coworking.removeBooking(
+                    (Facility) parsed.get("facility"),
+                    (LocalDateTime) parsed.get("start"), (LocalDateTime) parsed.get("end"),
+                    user) ?
+                    "Booking successfully removed." : "Something went wrong. Please consider retry.";
+        } catch (NoSuchElementException e) {
+            System.out.println("Booking not found in the system.");
+            return;
+        } catch (UnsupportedOperationException e) {
+            System.out.println("Can't remove another user's booking.");
+            return;
+        }
+        System.out.println(response);
+    }
+
+    private static Map<String, Object> parseBookingDetails(String bookingData) {
+        Map<String, Object> parsed = new HashMap<>();
+        var split = bookingData.split(",\\s*");
+        try {
+            parsed.put("facility", coworking.getFacility(split[0].trim().toLowerCase()));
+        } catch (MemberNotFoundException e) {
+            System.out.println("Facility not found. Please consider retry.");
+            return null;
+        }
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        try {
+            parsed.put("start", LocalDateTime.parse(split[1].trim(), DATE_TIME_FORMATTER));
+            parsed.put("end", LocalDateTime.parse(split[2].trim(), DATE_TIME_FORMATTER));
+        } catch (DateTimeParseException e) {
+            System.out.println("Error parsing booking details. Please consider retry.");
+            return null;
+        }
+        return parsed;
     }
 
 }

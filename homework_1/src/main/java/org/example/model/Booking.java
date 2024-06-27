@@ -53,13 +53,11 @@ public class Booking implements Comparable<Booking> {
 
     @Override
     public int compareTo(Booking other) {  // TODO: include end
-        if (getStart().isBefore(other.getStart())) {
-            return -1;
-        }
-        if (getStart().isAfter(other.getStart())) {
-            return 1;
-        }
-        return 0;
+        if (getStart().isBefore(other.getStart())) return -1;
+        if (getStart().isAfter(other.getStart())) return 1;
+        if (getEnd().isBefore(other.getEnd())) return -1;
+        if (getEnd().isAfter(other.getEnd())) return 1;
+        return facility.compareTo(other.getFacility());
     }
 
     @Override

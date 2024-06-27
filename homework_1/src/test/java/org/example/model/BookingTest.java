@@ -179,10 +179,40 @@ class BookingTest {
         );
         Booking b2 = new Booking(
                 user1, workstation1,
-                LocalDateTime.of(2024, 6, 22, 16, 0),
-                LocalDateTime.of(2024, 6, 23, 16, 0)
+                LocalDateTime.of(2024, 6, 22, 10, 0),
+                LocalDateTime.of(2024, 6, 23, 11, 0)
         );
         assertThat(b1).isEqualTo(b2);
+    }
+
+    @Test
+    void same_time_same_facility_equal_by_compare_to() {
+        Booking b1 = new Booking(
+                user1, workstation1,
+                LocalDateTime.of(2024, 6, 22, 10, 0),
+                LocalDateTime.of(2024, 6, 22, 12, 0)
+        );
+        Booking b2 = new Booking(
+                user2, workstation1,
+                LocalDateTime.of(2024, 6, 22, 10, 0),
+                LocalDateTime.of(2024, 6, 22, 12, 0)
+        );
+        assertThat(b1).isEqualByComparingTo(b2);
+    }
+
+    @Test
+    void same_time_diff_facility_not_equal_by_comparing_to() {
+        Booking b1 = new Booking(
+                user1, workstation1,
+                LocalDateTime.of(2024, 6, 22, 10, 0),
+                LocalDateTime.of(2024, 6, 22, 12, 0)
+        );
+        Booking b2 = new Booking(
+                user1, workstation2,
+                LocalDateTime.of(2024, 6, 22, 10, 0),
+                LocalDateTime.of(2024, 6, 22, 12, 0)
+        );
+        assertThat(b1).isNotEqualByComparingTo(b2);
     }
 
     @Test
@@ -216,7 +246,7 @@ class BookingTest {
     }
 
     @Test
-    void same_start_compare_as_equal() {
+    void same_start_earlier_end_smaller() {
         Booking b1 = new Booking(
                 user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
@@ -227,7 +257,21 @@ class BookingTest {
                 LocalDateTime.of(2024, 6, 22, 10, 0),
                 LocalDateTime.of(2024, 6, 23, 12, 0)
         );
-        assertThat(b1).isEqualByComparingTo(b2);
+        assertThat(b2).isLessThan(b1);
     }
 
+    @Test
+    void same_time_smaller_facility_smaller() {
+        Booking b1 = new Booking(
+                user1, workstation1,
+                LocalDateTime.of(2024, 6, 22, 16, 0),
+                LocalDateTime.of(2024, 6, 23, 16, 0)
+        );
+        Booking b2 = new Booking(
+                user2, workstation2,
+                LocalDateTime.of(2024, 6, 22, 16, 0),
+                LocalDateTime.of(2024, 6, 23, 16, 0)
+        );
+        assertThat(b1).isLessThan(b2);
+    }
 }

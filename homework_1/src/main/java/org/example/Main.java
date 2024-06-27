@@ -159,7 +159,7 @@ public class Main {
         String bookingData = SCANNER.nextLine();
         Map<String, Object> parsed = parseBookingDetails(bookingData);
         if (parsed == null) return;
-        String response = null;
+        String response;
         try {
             response = coworking.removeBooking(
                     (Facility) parsed.get("facility"),
@@ -178,13 +178,13 @@ public class Main {
 
     private static void viewBookings(@NotNull User admin) {
         if (!admin.isAdmin()) {
-            System.out.println("You are not authorized to issue this command");
+            System.out.println("Unknown command. Please try again");
             return;
         }
         System.out.println("Enter `user <login>` (user u1) or `facility <id number>` (facility CR001) to apply filter, " +
                 "mere Enter to proceed with no filtering.");
-        var input = SCANNER.nextLine().toLowerCase().split("\\s+");
-        switch (input[0].trim()) {
+        var input = SCANNER.nextLine().trim().toLowerCase().split("\\s+");
+        switch (input[0]) {
             case "user" -> viewLoginBookings(admin, input[1]);
             case "facility" -> viewFacilityBookings(admin, input[1]);
             default -> {
@@ -195,10 +195,7 @@ public class Main {
     }
 
     private static void viewFacilityBookings(@NotNull User admin, String idNumber) {
-        if (!admin.isAdmin()) {
-            System.out.println("You are not authorized to issue this command");
-            return;
-        }
+        if (!admin.isAdmin()) return;
         String response = ResponseBuilder.listFacilityBookings(admin, idNumber, coworking);
         System.out.println(response);
     }

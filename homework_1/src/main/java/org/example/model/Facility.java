@@ -6,7 +6,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public abstract class Facility implements Comparable<Facility> {
-    public final int INTER_BOOKING_GAP = 15;
+    public static int INTER_BOOKING_GAP = 15;
     private final String idNumber;
 
     public Facility(String idNumber) {
@@ -78,9 +78,7 @@ public abstract class Facility implements Comparable<Facility> {
     }
 
     @Override
-    public int compareTo(Facility other) {
-        return idNumber.compareTo(other.getIdNumber());
-    }
+    public int compareTo(Facility other) { return idNumber.compareTo(other.getIdNumber()); }
 
     @Override
     public String toString() {

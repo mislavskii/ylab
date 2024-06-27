@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ResponseBuilder {
+public class ResponseBuilder {  // TODO: replace sorted lists of bookings with TreeSets where needed
     static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
     public static String listFacilities(List<Facility> facilities) {

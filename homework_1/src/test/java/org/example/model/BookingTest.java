@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class BookingTest {
+class BookingTest {  // TODO: Make sure that inter-booking gap is properly accounted for
     Workstation workstation1;
     Workstation workstation2;
     ConferenceRoom room1;
@@ -66,7 +66,7 @@ class BookingTest {
     }
 
     @Test
-    void diff_time_same_facility_not_equal() {
+    void exactly_gap_apart_same_facility_not_equal() {
         Booking b1 = new Booking(
                 user1, workstation1,
                 LocalDateTime.of(2024, 6, 22, 10, 0),
@@ -74,12 +74,26 @@ class BookingTest {
         );
         Booking b2 = new Booking(
                 user1, workstation1,
-                LocalDateTime.of(2024, 6, 22, 12, 1),
+                LocalDateTime.of(2024, 6, 22, 12, 15),
                 LocalDateTime.of(2024, 6, 22, 16, 0)
         );
         assertThat(b1).isNotEqualTo(b2);
     }
 
+    @Test
+    void less_than_gap_apart_same_facility_equal() {
+        Booking b1 = new Booking(
+                user1, workstation1,
+                LocalDateTime.of(2024, 6, 22, 10, 0),
+                LocalDateTime.of(2024, 6, 22, 12, 0)
+        );
+        Booking b2 = new Booking(
+                user1, workstation1,
+                LocalDateTime.of(2024, 6, 22, 12, 14),
+                LocalDateTime.of(2024, 6, 22, 16, 0)
+        );
+        assertThat(b1).isEqualTo(b2);
+    }
     @Test
     void same_time_diff_facility_same_class_not_equal() {
         Booking b1 = new Booking(

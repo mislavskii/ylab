@@ -35,7 +35,9 @@ public class Booking implements Comparable<Booking> {
     }
 
     public boolean isOverlapping(Booking other) { // TODO: add facility-specific gap
-        return !getEnd().isBefore(other.getStart()) && !getStart().isAfter(other.getEnd());
+        int gap = facility.INTER_BOOKING_GAP;
+        return getEnd().isAfter(other.getStart().minusMinutes(gap))
+                && getStart().isBefore(other.getEnd().plusMinutes(gap));
     }
 
     @Override

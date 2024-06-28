@@ -98,6 +98,7 @@ public class Main {
             String adminMenu = userMenu + '\n' + ADMIN_COMMANDS;
             String menu = user.isAdmin() ? adminMenu : userMenu;
             System.out.println(menu);
+            SCANNER.reset();
             String command = SCANNER.nextLine();
             if (command.isEmpty()) {
                 break;
@@ -225,7 +226,7 @@ public class Main {
             response = ResponseBuilder.addNewWorkstation(admin, idNumber, description, coworking);
         } else if (type.equals("2")) {
             System.out.println("Enter number of seats: ");
-            int seats = SCANNER.nextInt();
+            int seats = new Scanner(System.in).nextInt();  // TODO: catch
             response = ResponseBuilder.addNewConferenceRoom(admin, idNumber, seats, coworking);
         } else {
             response = "Unknown command.";
@@ -234,10 +235,10 @@ public class Main {
     }
     private static void editFacility(User admin) {
         if (!admin.isAdmin()) return;
+        String response = "";
         Facility facility;
-        if (!admin.isAdmin()) return;
         System.out.println("Enter facility name:");
-        String idNumber = SCANNER.nextLine().trim();
+        String idNumber = SCANNER.nextLine().trim().toLowerCase();
         try {
             facility = coworking.getFacility(idNumber);
         } catch (MemberNotFoundException e) {
@@ -245,32 +246,44 @@ public class Main {
             return;
         }
         if (facility.getClass().equals(ConferenceRoom.class)) {
-            editConferenceRoom((ConferenceRoom) facility);
-            return;
+            response = editConferenceRoom((ConferenceRoom) facility);
         }
         if (facility.getClass().equals(Workstation.class)) {
-            editWorkstation ((Workstation) facility);
+            response = editWorkstation ((Workstation) facility);
         }
+        System.out.println(response);
     }
-    private static void editConferenceRoom(ConferenceRoom room) {
+    private static String editConferenceRoom(ConferenceRoom room) {
+        int newSeats;
         System.out.printf("Conference room `%S` has %d seats. You can change the number of seats. " +
-                "Enter the new number: ", room.getIdNumber(), room.getSeats());
+                "Enter the new number, -1 to return to the menu:\n", room.getIdNumber(), room.getSeats());
         try {
-            room.setSeats(SCANNER.nextInt());
-        } catch (Exception e) {
-            System.out.println("Invalid input value. Please retry.");
+            newSeats = new Scanner(System.in).nextInt();
+        } catch (InputMismatchException e) {
+            return  "Invalid input value. Please retry.";
+        } catch (NoSuchElementException e) {  // this doesn't work on mere Enter
+            return "";
         }
-        System.out.printf("Conference room `%S` edited. The number of seats is set to %d.\n",
-                room.getIdNumber(), room.getSeats());
+        if (newSeats == -1) {
+            return "Edit cancelled.";
+        }
+        room.setSeats(newSeats);
+        return String.format(
+                "Conference room `%S` edited. The number of seats is set to %d.\n",
+                room.getIdNumber(), room.getSeats()
+        );
     }
-    private static void editWorkstation(Workstation workstation) {
+    private static String editWorkstation(Workstation workstation) {
         System.out.printf("Workstation's `%S` description is `%s`. Enter new description to change it, " +
                 "mere Enter to return to the menu.\n", workstation.getIdNumber(), workstation.getDescription());
         String newDescription = SCANNER.nextLine().trim();
-        if (newDescription.isEmpty()) {return;}
+        if (newDescription.isEmpty()) {
+            return "";
+        }
         workstation.setDescription(newDescription);
-        System.out.printf(
-                "Workstation's `%S` description set to `%s`\n", workstation.getIdNumber(), workstation.getDescription()
+        return String.format(
+                "Workstation's `%S` description set to `%s`\n",
+                workstation.getIdNumber(), workstation.getDescription()
         );
     }
 

@@ -226,8 +226,13 @@ public class Main {
             response = ResponseBuilder.addNewWorkstation(admin, idNumber, description, coworking);
         } else if (type.equals("2")) {
             System.out.println("Enter number of seats: ");
-            int seats = new Scanner(System.in).nextInt();  // TODO: catch
-            response = ResponseBuilder.addNewConferenceRoom(admin, idNumber, seats, coworking);
+            int seats;
+            try {
+                seats = new Scanner(System.in).nextInt();
+                response = ResponseBuilder.addNewConferenceRoom(admin, idNumber, seats, coworking);
+            } catch (Exception e) {
+                response = "Invalid input value. Consider retry.";
+            }
         } else {
             response = "Unknown command.";
         }
@@ -259,10 +264,8 @@ public class Main {
                 "Enter the new number, -1 to return to the menu:\n", room.getIdNumber(), room.getSeats());
         try {
             newSeats = new Scanner(System.in).nextInt();
-        } catch (InputMismatchException e) {
+        } catch (Exception e) {
             return  "Invalid input value. Please retry.";
-        } catch (NoSuchElementException e) {  // this doesn't work on mere Enter
-            return "";
         }
         if (newSeats == -1) {
             return "Edit cancelled.";

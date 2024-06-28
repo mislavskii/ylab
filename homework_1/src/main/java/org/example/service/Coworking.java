@@ -82,8 +82,12 @@ public class Coworking {
         return Collections.unmodifiableList(view);
     }
 
-    public void removeFacility(String idNumber) {
-        facilities.remove(idNumber);
+    public Facility removeFacility(String idNumber) throws MemberNotFoundException {
+        Facility deleted = facilities.remove(idNumber);
+        if (deleted == null) {
+            throw new MemberNotFoundException();
+        }
+        return deleted;
     }
 
     // TODO: Prevent bookings less than facility-type gap apart from being added

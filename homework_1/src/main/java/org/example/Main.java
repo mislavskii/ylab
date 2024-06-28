@@ -1,7 +1,9 @@
 package org.example;
 
+import org.example.model.ConferenceRoom;
 import org.example.model.Facility;
 import org.example.model.User;
+import org.example.model.Workstation;
 import org.example.service.Coworking;
 import org.example.utils.Initializer;
 import org.example.utils.MemberAlreadyExistsException;
@@ -35,9 +37,9 @@ public class Main {
             """
             6 - View all bookings with filtering on facility / user
             7 - Remove any booking
-            8 - Manage facility""";
+            8 - Manage facilities""";
 
-    public static void main(String[] args) throws MemberAlreadyExistsException {
+    public static void main(String[] args) {
         System.out.println("Hello! Welcome to Coworking!");
         Initializer.populate(coworking);
 
@@ -86,7 +88,7 @@ public class Main {
         }
     }
 
-    public static void executeCommands(User user) {
+    private static void executeCommands(User user) {
         String prompt = "Please enter command, mere Enter to log out\n";
         while (true) {
             if (user == null) {
@@ -104,9 +106,10 @@ public class Main {
                 case "1" -> viewFacilities();
                 case "2" -> checkAvailability();
                 case "3" -> placeBooking(user);
-                case "4" -> viewUserBookings(user);
-                case "5" -> removeBooking(user);
-                case "6" -> viewBookings(user);
+                case "4" -> viewOwnBookings(user);
+                case "5", "7" -> removeBooking(user);
+                case "6" -> viewBookingsAsAdmin(user);
+                case "8" -> manageFacilities(user);
                 default -> System.out.println("Unknown command. Please try again.");
             }
         }
@@ -146,7 +149,7 @@ public class Main {
         System.out.println(response);
     }
 
-    private static void viewUserBookings(User user)  {
+    private static void viewOwnBookings(User user)  {
         String response = ResponseBuilder.listUserBookings(user, coworking);
         System.out.println(response);
     }
@@ -176,7 +179,7 @@ public class Main {
         System.out.println(response);
     }
 
-    private static void viewBookings(@NotNull User admin) {
+    private static void viewBookingsAsAdmin(@NotNull User admin) {
         if (!admin.isAdmin()) {
             System.out.println("Unknown command. Please try again");
             return;
@@ -192,6 +195,92 @@ public class Main {
                 System.out.println(response);
             }
         }
+    }
+
+    private static void manageFacilities(User admin) {
+        if (!admin.isAdmin()) {
+            System.out.println("Unknown command. Please try again");
+            return;
+        }
+        System.out.println("Choose action:\n1 - Add new facility\n2 - Edit facility\n3 - Delete a facility");
+        String input = SCANNER.nextLine();
+        switch (input.trim()) {
+            case "1" -> addNewFacility(admin);
+            case "2" -> editFacility(admin);
+            case "3" -> deleteFacility(admin);
+            default -> System.out.println("Unknown command.");
+        }
+    }
+
+    private static void addNewFacility(User admin) {
+        if (!admin.isAdmin()) return;
+        String response;
+        System.out.println("Choose new facility type: \n1 - Workstation\n2 - Conference Room");
+        String type = SCANNER.nextLine().trim();
+        System.out.println("Enter new facility name:");
+        String idNumber = SCANNER.nextLine().trim();
+        if (type.equals("1")) {
+            System.out.println("Enter workstation description: ");
+            String description = SCANNER.nextLine().trim();
+            response = ResponseBuilder.addNewWorkstation(admin, idNumber, description, coworking);
+        } else if (type.equals("2")) {
+            System.out.println("Enter number of seats: ");
+            int seats = SCANNER.nextInt();
+            response = ResponseBuilder.addNewConferenceRoom(admin, idNumber, seats, coworking);
+        } else {
+            response = "Unknown command.";
+        }
+        System.out.println(response);
+    }
+    private static void editFacility(User admin) {
+        if (!admin.isAdmin()) return;
+        Facility facility;
+        if (!admin.isAdmin()) return;
+        System.out.println("Enter facility name:");
+        String idNumber = SCANNER.nextLine().trim();
+        try {
+            facility = coworking.getFacility(idNumber);
+        } catch (MemberNotFoundException e) {
+            System.out.println("Facility with this name not found. Consider retry.");
+            return;
+        }
+        if (facility.getClass().equals(ConferenceRoom.class)) {
+            editConferenceRoom((ConferenceRoom) facility);
+            return;
+        }
+        if (facility.getClass().equals(Workstation.class)) {
+            editWorkstation ((Workstation) facility);
+        }
+    }
+    private static void editConferenceRoom(ConferenceRoom room) {
+        System.out.printf("Conference room `%S` has %d seats. You can change the number of seats. " +
+                "Enter the new number: ", room.getIdNumber(), room.getSeats());
+        try {
+            room.setSeats(SCANNER.nextInt());
+        } catch (Exception e) {
+            System.out.println("Invalid input value. Please retry.");
+        }
+        System.out.printf("Conference room `%S` edited. The number of seats is set to %d.\n",
+                room.getIdNumber(), room.getSeats());
+    }
+    private static void editWorkstation(Workstation workstation) {
+        System.out.printf("Workstation's `%S` description is `%s`. Enter new description to change it, " +
+                "mere Enter to return to the menu.\n", workstation.getIdNumber(), workstation.getDescription());
+        String newDescription = SCANNER.nextLine().trim();
+        if (newDescription.isEmpty()) {return;}
+        workstation.setDescription(newDescription);
+        System.out.printf(
+                "Workstation's `%S` description set to `%s`\n", workstation.getIdNumber(), workstation.getDescription()
+        );
+    }
+
+    private static void deleteFacility(User admin) {
+        if (!admin.isAdmin()) return;
+        String response;
+        System.out.println("Enter name of the facility to be deleted:");
+        String idNumber = SCANNER.nextLine().trim().toLowerCase();
+        response = ResponseBuilder.deleteFacility(admin, idNumber, coworking);
+        System.out.println(response);
     }
 
     private static void viewFacilityBookings(@NotNull User admin, String idNumber) {
@@ -214,7 +303,6 @@ public class Main {
             System.out.println("Facility not found. Please consider retry.");
             return null;
         }
-
         try {
             parsed.put("start", LocalDateTime.parse(split[1].trim(), DATE_TIME_FORMATTER));
             parsed.put("end", LocalDateTime.parse(split[2].trim(), DATE_TIME_FORMATTER));

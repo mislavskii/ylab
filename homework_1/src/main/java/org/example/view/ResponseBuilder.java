@@ -2,9 +2,14 @@ package org.example.view;
 
 import org.example.model.*;
 import org.example.service.Coworking;
+import org.example.utils.MemberAlreadyExistsException;
+import org.example.utils.MemberNotFoundException;
 
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class ResponseBuilder {  // TODO: replace sorted lists of bookings with TreeSets where needed
@@ -81,6 +86,43 @@ public class ResponseBuilder {  // TODO: replace sorted lists of bookings with T
                     .append(" user: ").append(booking.getUser().getLogin()).append('\n');
         });
         return response.toString();
+    }
+
+    public static String addNewWorkstation(User admin, String idNumber, String description, Coworking coworking) {
+        if (!admin.isAdmin()) return null;
+        try {
+            coworking.addFacility(new Workstation(idNumber, description));
+        } catch (MemberAlreadyExistsException e) {
+            return "Facility with this name already exists.";
+        }
+        return String.format("New workstation `%S` added.", idNumber);
+    }
+
+    public static String addNewConferenceRoom(User admin, String idNumber, int seats, Coworking coworking) {
+        if (!admin.isAdmin()) return null;
+        try {
+            coworking.addFacility(new ConferenceRoom(idNumber, seats));
+        } catch (MemberAlreadyExistsException e) {
+            return "Facility with this name already exists.";
+        }
+        return String.format("New conference room `%S` added.", idNumber);
+    }
+
+    public static String deleteFacility(User admin, String idNumber, Coworking coworking) {
+        String response;
+        Facility deleted;
+        if (!admin.isAdmin()) return null;
+        try {
+            deleted = coworking.removeFacility(idNumber);
+        } catch (MemberNotFoundException e) {
+            response = "Facility with this name not found in the system.";
+            return response;
+        }
+        response = String.format(
+                "%s `%S` removed from the system.\n",
+                deleted.getClass().equals(ConferenceRoom.class) ? "Conference Room" : "Workstation",
+                deleted.getIdNumber());
+        return response;
     }
 
     private static void getConferenceRooms(List<Facility> facilities, StringBuilder response) {

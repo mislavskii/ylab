@@ -11,4 +11,8 @@ public class ConferenceRoom extends Facility {
     public int getSeats() {
         return seats;
     }
+
+    public void setSeats(int seats) {
+        this.seats = seats;
+    }
 }

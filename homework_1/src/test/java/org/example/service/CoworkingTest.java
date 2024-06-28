@@ -165,7 +165,7 @@ class CoworkingTest {
     }
 
     @Test
-    void removeFacility() throws MemberAlreadyExistsException {
+    void removeFacility() throws MemberAlreadyExistsException, MemberNotFoundException {
         Workstation workstation = new Workstation("ws001", "Celeron");
         ConferenceRoom room = new ConferenceRoom("cr001", 7);
         coworking.addFacility(workstation);
